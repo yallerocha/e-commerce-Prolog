@@ -41,7 +41,7 @@ initialController :-
 
 initialController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos, 
+    imprimir_produtos_por_categoria(_), 
     initialController.
 
 initialController_processar_opcao(02) :-
@@ -87,7 +87,7 @@ clienteController :-
 
 processar_opcao_cliente(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos,
+    imprimir_produtos_por_categoria(_),
     clienteController.
 
 processar_opcao_cliente(02) :-
@@ -156,7 +156,7 @@ admController :-
 
 admController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos,
+    imprimir_produtos_por_categoria(_),
     admController.
 
 admController_processar_opcao(02) :-
@@ -289,30 +289,6 @@ imprimir_produto(Codigo) :-
     format('----------------------------------------~n'),
     format('Validade:    | ~w~n', [Validade]),
     format('========================================~n').
-
-% Predicado para imprimir todos os produtos do sistema
-imprimir_produtos :-
-    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
-    format('========================================~n'),
-    format('Nome:        | ~w~n', [Nome]),
-    format('----------------------------------------~n'),
-    format('Código:      | ~w~n', [Codigo]),
-    format('----------------------------------------~n'),
-    format('Disponível:  | ~w~n', [Disponivel]),
-    format('----------------------------------------~n'),
-    format('Categoria:   | ~w~n', [Categoria]),
-    format('----------------------------------------~n'),
-    format('Preço Compra:| R$~w~n', [PrecoCompra]),
-    format('----------------------------------------~n'),
-    format('Preço Venda: | R$~w~n', [PrecoVenda]),
-    format('----------------------------------------~n'),
-    format('Quantidade:  | ~w~n', [Quantidade]),
-    format('----------------------------------------~n'),
-    format('Fabricação:  | ~w~n', [Fabricacao]),
-    format('----------------------------------------~n'),
-    format('Validade:    | ~w~n', [Validade]),
-    format('========================================~n'),
-    fail.
 
 % Predicado para imprimir produtos de uma determinada categoria
 imprimir_produtos_por_categoria(Categoria) :-
