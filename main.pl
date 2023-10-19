@@ -11,7 +11,7 @@ main :-
 % Codigo de Produto
 % ===================================================================================================================
 
-% Defina o contador como um fato dinâmico.
+% Define o contador como um fato dinâmico.
 :- dynamic(contador_codigo/1).
 
 % Predicado para obter o próximo código e incrementá-lo.
@@ -406,6 +406,7 @@ verificar_produto(Codigo) :-
 verificar_cliente(CPF) :-
     cliente(_, _, _, CPF, _, _, _, _).
 
+% Predicado para ler um produto
 ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) :-
     writeln('Digite o nome do produto: '),
     read(Nome),
@@ -417,19 +418,20 @@ ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fa
     read(PrecoVenda),
     writeln('Digite a quantidade inicial em estoque: '),
     read(Quantidade),
-    writeln('Digite a data de fabricação do produto: '),
+    writeln('Digite a data de fabricação do produto (DD-MM-AAAA): '),
     read(Fabricacao),
-    writeln('Digite a data de validade do produto: '),
+    writeln('Digite a data de validade do produto (DD-MM-AAAA): '),
     read(Validade),
     writeln('Digite a disponibilidade do produto (true/false): '),
     read(Disponivel).
 
+% Predicado para ler um cliente
 ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Senha) :-
     writeln('Digite o nome completo do cliente: '),
     read(NomeCompleto),
     writeln('Digite o sexo do cliente: '),
     read(Sexo),
-    writeln('Digite a data de nascimento do cliente: '),
+    writeln('Digite a data de nascimento do cliente (DD-MM-AAAA): '),
     read(DataNascimento),
     writeln('Digite o email do cliente: '),
     read(Email),
