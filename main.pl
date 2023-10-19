@@ -196,7 +196,8 @@ admController_processar_opcao(06) :-
     writeln('Digite o código do produto: '),
     read(Codigo),
     (verificar_produto(Codigo) ->
-        deletar_produto(Codigo)
+        deletar_produto(Codigo),
+        writeln('Produto removido com sucesso.')
     ;   writeln('Produto não encontrado.')
     ),
     admController.
@@ -225,7 +226,8 @@ admController_processar_opcao(09) :-
     writeln('Digite o CPF do cliente: '),
     read(CPF),
     (verificar_cliente(CPF) ->
-        deletar_cliente(CPF)
+        deletar_cliente(CPF),
+        writeln('Cliente removido com sucesso.')
     ;   writeln('Cliente não encontrado.')
     ),
     admController.
@@ -263,8 +265,7 @@ atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoComp
 
 % Predicado para deletar um produto por código
 deletar_produto(Codigo) :-
-    retract(produto(Codigo, _, _, _, _, _, _, _, _)),
-    writeln('Produto com código '), writeln(Codigo), writeln(' removido com sucesso.'), nl.
+    retract(produto(Codigo, _, _, _, _, _, _, _, _)).
 
 % Predicado para imprimir um produto
 imprimir_produto(Codigo) :-
@@ -350,8 +351,7 @@ criar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsua
 
 % Predicado para deletar um cliente por CPF
 deletar_cliente(CPF) :-
-    retract(cliente(_, _, _, CPF, _, _, _, _)),
-    writeln('Cliente com CPF '), writeln(CPF), writeln(' removido com sucesso.'), nl.
+    retract(cliente(_, _, _, CPF, _, _, _, _)).
 
 atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha) :-
     retract(cliente(_, _, _, CPF, _, _, _, _)),
