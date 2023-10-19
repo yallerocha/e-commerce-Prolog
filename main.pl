@@ -4,15 +4,8 @@
 
 % Predicado main que chama o initialController.
 main :-
-    criar_produto(80, true, 'Maçã Verde', 'Frutas', 5.99, 7.99, 100, '2023-01-10', '2023-02-10'),
-    criar_produto(81, true, 'Notebook', 'Eletrônicos', 1299.99, 1599.99, 10, '2023-03-15', '2024-03-15'),
-    criar_produto(82, true, 'Camiseta', 'Vestuário', 15.99, 29.99, 50, '2023-04-20', '2024-04-20'),
+    iniciar_sistema.
 
-    criar_cliente('Maria Silva', 'Feminino', '1990-05-15', '12345678900', 'maria@email.com', '123456789', 'maria_silva', 'senha123'),
-    criar_cliente('João Santos', 'Masculino', '1985-02-20', '98765432100', 'joao@email.com', '987654321', 'joao_santos', 'senha456'),
-    criar_cliente('Ana Souza', 'Feminino', '1995-10-10', '55555555500', 'ana@email.com', '555555555', 'ana_souza', 'senha789'),
-    
-    initialController.
 
 % ===================================================================================================================
 % Codigo de Produto
@@ -21,10 +14,6 @@ main :-
 % Defina o contador como um fato dinâmico.
 :- dynamic(contador_codigo/1).
 
-% Predicado para inicializar o contador de código com 1.
-inicializar_contador_codigo :-
-    asserta(contador_codigo(1)).
-
 % Predicado para obter o próximo código e incrementá-lo.
 obter_e_incrementar_codigo(ProximoCodigo) :-
     retract(contador_codigo(CodigoAtual)),  
@@ -32,7 +21,6 @@ obter_e_incrementar_codigo(ProximoCodigo) :-
     NovoCodigo is CodigoAtual + 1,         
     asserta(contador_codigo(NovoCodigo)). 
 
-:- inicializar_contador_codigo.
 
 % ===================================================================================================================
 % Controllers
@@ -42,37 +30,37 @@ initialController :-
     writeln('====================================='),
     writeln('         Menu de Visitante          '),
     writeln('====================================='), 
-    writeln('  (01) Entrar como Cliente'), 
-    writeln('  (02) Registrar como Cliente'), 
-    writeln('  (03) Entrar como Administrador'), 
-    writeln('  (04) Visualizar Produtos'), 
+    writeln('  (01) Visualizar Produtos'), 
+    writeln('  (02) Entrar como Cliente'), 
+    writeln('  (03) Registrar como Cliente'), 
+    writeln('  (04) Entrar como Administrador'), 
     writeln('  (05) Sair do Sistema'), 
     writeln('Digite a opção desejada: '), 
     read(Opcao),
     initialController_processar_opcao(Opcao).
 
 initialController_processar_opcao(01) :-
-    % Coloque aqui a lógica para logar como cliente.
-    writeln('Entrando como cliente...'),
-    clienteController.
-
-initialController_processar_opcao(02) :-
-    % Coloque aqui a lógica para registrar um cliente.
-    writeln('Entrando como cliente...'),
-    clienteController.
-
-initialController_processar_opcao(03) :-
-    % Coloque aqui a lógica para logar como administrador.
-    writeln('Entrando como administrador...'),
-    admController.
-
-initialController_processar_opcao(04) :-
     writeln('Visualizando produtos...'),
     imprimir_produtos, 
     initialController.
 
+initialController_processar_opcao(02) :-
+    % Coloque aqui a lógica para logar como cliente.
+    writeln('Entrando como cliente...'),
+    clienteController.
+
+initialController_processar_opcao(03) :-
+    % Coloque aqui a lógica para registrar um cliente.
+    writeln('Entrando como cliente...'),
+    clienteController.
+
+initialController_processar_opcao(04) :-
+    % Coloque aqui a lógica para logar como administrador.
+    writeln('Entrando como administrador...'),
+    admController.
+
 initialController_processar_opcao(05) :-
-    writeln('Saindo do sistema.').
+    fechar_sistema.
 
 initialController_processar_opcao(_) :-
     writeln('Opção inválida. Tente novamente.'),
@@ -138,7 +126,7 @@ processar_opcao_cliente(09) :-
 
 % Opção para sair do sistema
 processar_opcao_cliente(10) :-
-    writeln('Saindo do sistema.').
+    fechar_sistema.
 
 % Opção inválida
 processar_opcao_cliente(_) :-
@@ -172,19 +160,30 @@ admController_processar_opcao(01) :-
     admController.
 
 admController_processar_opcao(02) :-
-    ler_produto_e_adicionar,
+    ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    obter_e_incrementar_codigo(Codigo),
+    criar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     writeln('Produto adicionado com sucesso.'),
     admController.
 
 admController_processar_opcao(03) :-
-    ler_produto_e_atualizar,
-    writeln('Produto atualizado com sucesso.'),
+    writeln('Digite o código do produto a ser atualizado: '),
+    read(Codigo),
+    (verificar_produto(Codigo) ->
+        ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+        atualizar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+        writeln('Produto atualizado com sucesso.')
+    ;   writeln('Produto não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(04) :-
     writeln('Digite o código do produto: '),
     read(Codigo),
-    imprimir_produto(Codigo),
+    (verificar_produto(Codigo) ->
+        imprimir_produto(Codigo)
+    ;   writeln('Produto não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(05) :-
@@ -196,24 +195,39 @@ admController_processar_opcao(05) :-
 admController_processar_opcao(06) :-
     writeln('Digite o código do produto: '),
     read(Codigo),
-    deletar_produto(Codigo),
+    (verificar_produto(Codigo) ->
+        deletar_produto(Codigo)
+    ;   writeln('Produto não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(07) :-
     writeln('Digite o CPF do cliente: '),
     read(CPF),
-    imprimir_cliente_por_cpf(CPF),
+    (verificar_cliente(CPF) ->
+        imprimir_cliente_por_cpf(CPF)
+    ;   writeln('Cliente não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(08) :-
-    ler_cliente_e_atualizar,
-    writeln('Cliente atualizado com sucesso.'),
+    writeln('Digite o CPF do cliente a ser atualizado: '),
+    read(CPF),
+    (verificar_cliente(CPF) ->
+        ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Senha),
+        atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
+        writeln('Cliente atualizado com sucesso.')
+    ;   writeln('Cliente não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(09) :-
     writeln('Digite o CPF do cliente: '),
     read(CPF),
-    deletar_cliente(CPF),
+    (verificar_cliente(CPF) ->
+        deletar_cliente(CPF)
+    ;   writeln('Cliente não encontrado.')
+    ),
     admController.
 
 admController_processar_opcao(10) :-
@@ -225,11 +239,12 @@ admController_processar_opcao(11) :-
     initialController.
 
 admController_processar_opcao(12) :-
-    writeln('Saindo do sistema.').
+    fechar_sistema.
 
 admController_processar_opcao(_) :-
     writeln('Opção inválida. Tente novamente.'),
     admController.
+
 
 % ===================================================================================================================
 % Produto
@@ -243,19 +258,16 @@ criar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quan
 
 % Predicado para atualizar um produto
 atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoCompra, NovoPrecoVenda, NovaQuantidade, NovaFabricacao, NovaValidade) :-
-    verificar_produto(Codigo),
     retract(produto(Codigo, _, _, _, _, _, _, _, _)),
     assertz(produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoCompra, NovoPrecoVenda, NovaQuantidade, NovaFabricacao, NovaValidade)).
 
 % Predicado para deletar um produto por código
 deletar_produto(Codigo) :-
-    verificar_produto(Codigo),
     retract(produto(Codigo, _, _, _, _, _, _, _, _)),
     writeln('Produto com código '), writeln(Codigo), writeln(' removido com sucesso.'), nl.
 
 % Predicado para imprimir um produto
 imprimir_produto(Codigo) :-
-    verificar_produto(Codigo),
     produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     format('========================================~n'),
     format('Nome:        | ~w~n', [Nome]),
@@ -325,8 +337,6 @@ imprimir_produtos_por_categoria(Categoria) :-
     format('========================================~n'),
     fail.
 
-verificar_produto(Codigo) :-
-    (produto(Codigo, _, _, _, _, _, _, _, _) -> true ; writeln('O produto não existe')).
 
 % ===================================================================================================================
 % Cliente
@@ -340,21 +350,14 @@ criar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsua
 
 % Predicado para deletar um cliente por CPF
 deletar_cliente(CPF) :-
-    verificar_cliente(CPF),
     retract(cliente(_, _, _, CPF, _, _, _, _)),
     writeln('Cliente com CPF '), writeln(CPF), writeln(' removido com sucesso.'), nl.
 
 atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha) :-
-    verificar_cliente(CPF),
     retract(cliente(_, _, _, CPF, _, _, _, _)),
     assertz(cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha)).
 
-% Predicado para verificar se um cliente existe
-verificar_cliente(CPF) :-
-    (cliente(_, _, _, CPF, _, _, _, _) -> true ; writeln('O cliente não existe')).
-
 imprimir_cliente_por_cpf(CPF) :-
-    verificar_cliente(CPF),
     cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
     format('========================================~n'),
     format('Nome Completo: | ~w~n', [NomeCompleto]),
@@ -374,13 +377,36 @@ imprimir_cliente_por_cpf(CPF) :-
     format('Senha:         | ~w~n', [Senha]),
     format('========================================~n').
 
+
 % ===================================================================================================================
 % Auxiliares
 % ===================================================================================================================
 
-ler_produto_e_adicionar :-
-    obter_e_incrementar_codigo(Codigo),
-    Disponivel = true,
+% Predicado para iniciar o sistema
+iniciar_sistema :-
+    writeln('Iniciando o sistema...'),
+    ler_produtos_csv('Produtos.csv'),
+    ler_clientes_csv('Clientes.csv'),
+    ler_codigo_csv('NextCodigo.csv'),
+    initialController.
+
+% Predicado para fechar o sistema
+fechar_sistema :-
+    writeln('Fechando o sistema...'),
+    gravar_produtos_csv('Produtos.csv'),
+    gravar_clientes_csv('Clientes.csv'),
+    gravar_codigo_csv('NextCodigo.csv'), 
+    halt.
+
+% Predicado para verificar se um produto existe
+verificar_produto(Codigo) :-
+    produto(Codigo, _, _, _, _, _, _, _, _).
+
+% Predicado para verificar se um cliente existe
+verificar_cliente(CPF) :-
+    cliente(_, _, _, CPF, _, _, _, _).
+
+ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) :-
     writeln('Digite o nome do produto: '),
     read(Nome),
     writeln('Digite a categoria do produto: '),
@@ -395,51 +421,10 @@ ler_produto_e_adicionar :-
     read(Fabricacao),
     writeln('Digite a data de validade do produto: '),
     read(Validade),
-    criar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade).
+    writeln('Digite a disponibilidade do produto (true/false): '),
+    read(Disponivel).
 
-ler_produto_e_atualizar :-
-    writeln('Digite o código do produto a ser atualizado: '),
-    read(Codigo),
-    verificar_produto(Codigo),
-    writeln('Digite o novo nome do produto: '),
-    read(Nome),
-    writeln('Digite a nova categoria do produto: '),
-    read(Categoria),
-    writeln('Digite o novo preço de compra do produto: '),
-    read(PrecoCompra),
-    writeln('Digite o novo preço de venda do produto: '),
-    read(PrecoVenda),
-    writeln('Digite a nova quantidade inicial em estoque: '),
-    read(Quantidade),
-    writeln('Digite a nova data de fabricação do produto: '),
-    read(Fabricacao),
-    writeln('Digite a nova data de validade do produto: '),
-    read(Validade),
-    atualizar_produto(Codigo, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade).
-
-ler_cliente_e_adicionar :-
-    writeln('Digite o nome completo do cliente: '),
-    read(NomeCompleto),
-    writeln('Digite o sexo do cliente: '),
-    read(Sexo),
-    writeln('Digite a data de nascimento do cliente: '),
-    read(DataNascimento),
-    writeln('Digite o CPF do cliente: '),
-    read(CPF),
-    writeln('Digite o email do cliente: '),
-    read(Email),
-    writeln('Digite o telefone do cliente: '),
-    read(Telefone),
-    writeln('Digite o nome de usuário do cliente: '),
-    read(NomeUsuario),
-    writeln('Digite a senha do cliente: '),
-    read(Senha),
-    criar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha).
-
-ler_cliente_e_atualizar :-
-    writeln('Digite o CPF do cliente: '),
-    read(CPF),
-    verificar_cliente(CPF),
+ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Senha) :-
     writeln('Digite o nome completo do cliente: '),
     read(NomeCompleto),
     writeln('Digite o sexo do cliente: '),
@@ -453,5 +438,71 @@ ler_cliente_e_atualizar :-
     writeln('Digite o nome de usuário do cliente: '),
     read(NomeUsuario),
     writeln('Digite a senha do cliente: '),
-    read(Senha),
-    atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha).
+    read(Senha).
+
+
+% ===================================================================================================================
+% Persistência de Dados
+% ===================================================================================================================
+
+:- use_module(library(csv)).
+
+% Predicado para ler os dados do arquivo CSV de produtos
+ler_produtos_csv(NomeArquivoProdutos) :-
+    (   csv_read_file(NomeArquivoProdutos, ProdutoRows, [])
+    ->  writeln('Arquivo de produtos lido com sucesso.'),
+        processar_linhas(ProdutoRows, produto)
+    ;   writeln('Erro ao ler o arquivo de produtos.')
+    ).
+
+% Predicado para ler os dados do arquivo CSV de clientes
+ler_clientes_csv(NomeArquivoClientes) :-
+    (   csv_read_file(NomeArquivoClientes, ClienteRows, [])
+    ->  writeln('Arquivo de clientes lido com sucesso.'),
+        processar_linhas(ClienteRows, cliente)
+    ;   writeln('Erro ao ler o arquivo de clientes.')
+    ).
+
+% Predicado para processar as linhas lidas do CSV
+processar_linhas([], _).
+processar_linhas([Row|Rest], Tipo) :-
+    (   processar_linha(Row, Tipo)
+    ->  processar_linhas(Rest, Tipo)
+    ;   writeln('Erro ao processar a linha.'),
+        writeln(Row)
+    ).
+
+% Predicado para processar uma linha de produtos e criar predicados
+processar_linha(Row, produto) :-
+    Row = row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    assertz(produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade)).
+
+% Predicado para processar uma de clientes e criar predicados
+processar_linha(Row, cliente) :-
+    Row = row(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
+    assertz(cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha)).
+
+% Predicado para gravar produtos em um arquivo CSV
+gravar_produtos_csv(NomeArquivo) :-
+    findall(row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), 
+        produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), ProdutoRows),
+    csv_write_file(NomeArquivo, ProdutoRows).
+
+% Predicado para gravar clientes em um arquivo CSV
+gravar_clientes_csv(NomeArquivo) :-
+    findall(row(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
+        cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha), ClienteRows),
+    csv_write_file(NomeArquivo, ClienteRows).
+
+% Predicado para inicializar o contador de código
+ler_codigo_csv(NomeArquivo) :-
+    (   csv_read_file(NomeArquivo, [row(Valor)], [])
+    ->  writeln('Arquivo de codigo lido com sucesso.'),
+        asserta(contador_codigo(Valor))
+    ;   writeln('Erro ao ler o arquivo de codigo.')
+    ).
+
+% Predicado para salvar o valor do contador em um arquivo CSV
+gravar_codigo_csv(NomeArquivo) :-
+    contador_codigo(Valor),
+    csv_write_file(NomeArquivo, [row(Valor)]).
