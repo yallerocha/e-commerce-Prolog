@@ -103,17 +103,19 @@ processar_opcao_cliente(03) :-
     writeln('Digite o codigo do produto'),
     read(Codigo),
     writeln('Digite a quantidade'),
-    read(Quantidade),
-    adicionar_carro(CPF, Codigo, Quantidade),
+    read(Quantidade_Carrinho),
+    adicionar_carro(CPF, Codigo, Quantidade_Carrinho),
     clienteController.
 
 processar_opcao_cliente(04) :-
-    % Lógica para remover do carrinho
-    writeln('Digite a nome do produto'),
-    read(nomeProduto),
-    writeln('Digite a quantidade'),
-    read(quantidade),
-    remover_carro(nomeProduto, quantidadeProduto),
+    % Lógica para remover carrinho
+    writeln('Digite o cpf'),
+    read(CPF),
+    writeln('Digite o codigo do produto'),
+    read(Codigo),
+    writeln('Digite a quantidade a ser retirada'),
+    read(QuantidadeCarrinhoRetirada),
+    atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada),
     clienteController.
 
 processar_opcao_cliente(05) :-
@@ -439,25 +441,29 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
 
 :- dynamic carro/3.
 
-adicionar_carro(CPF, Codigo, Quantidade):-
-    assertz(carro(CPF, verificar_produto(Codigo), Quantidade)).
+adicionar_carro(CPF, Codigo, Quantidade_Carrinho):-
+    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
-atualizar_carro(nomeProduto, quantidadeProduto):-
-    retract(carro(nomeProduto, quantidadeProduto)),
-    assertz(carro(nomeProduto, quantidadeProduto)).
+atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada):-
+    quantidade_carrinho(CPF, Retorno),
+    Quantidade_final is Retorno - QuantidadeCarrinhoRetirada,
+    retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)),
+    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_final)).
 
 remover_produto_carro(nomeProduto)
     retract(carro(nomeProduto, _)).
 
+tem_carrinho(CPF):-
+    carro(CPF, _, _).
+
+quantidade_carrinho(CPF, Retorno):-
+    carro(CPF, _, Quantidade_Carrinho),
+    Retorno = Quantidade_Carrinho.
+
 mostrarCarro(CPF):-
-   carro(CPF, verificar_produto(Codigo), Quantidade),
-    format('========================================~n'),
-    format('Codigo:        | ~w~n', [Codigo]),
-    format('----------------------------------------~n'),
-    format('Quantidade:      | ~w~n', [Quantidade]),
-    format('----------------------------------------~n'),
-    format('Nome:      | ~w~n', [Nome]),
-    format('----------------------------------------~n').
+    carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    imprimir_produto(Codigo),
+    format('Quantidade no carrinho:    | ~w~n', [Quantidade_Carrinho]).
     
 
 %--------------------------------------------------------------------------------------------------------------------------------------------
