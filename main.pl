@@ -98,17 +98,32 @@ processar_opcao_cliente(02) :-
 
 processar_opcao_cliente(03) :-
     % Lógica para adicionar ao carrinho
+    writeln('Digite seu CPF'),
+    read(CPF),
+    writeln('Digite o codigo do produto'),
+    read(Codigo),
+    writeln('Digite a quantidade'),
+    read(Quantidade),
+    adicionar_carro(CPF, Codigo, Quantidade),
     clienteController.
 
 processar_opcao_cliente(04) :-
     % Lógica para remover do carrinho
+    writeln('Digite a nome do produto'),
+    read(nomeProduto),
+    writeln('Digite a quantidade'),
+    read(quantidade),
+    remover_carro(nomeProduto, quantidadeProduto),
     clienteController.
 
 processar_opcao_cliente(05) :-
     % Lógica para visualizar carrinho
+    writeln('Digite seu CPF'),
+    read(CPF),
+    mostrarCarro(CPF),
     clienteController.
 
-processar_opcao_cliente(06) :-
+processar_opcao_cliente(06) :-teboo
     % Lógica para finalizar compra
     clienteController.
 
@@ -417,6 +432,38 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
     read(NomeUsuario),
     writeln('Digite a senha do cliente: '),
     read(Senha).
+
+%--------------------------------------------------------------------------------------------------------------------------------------------
+% carrinho
+%--------------------------------------------------------------------------------------------------------------------------------------------
+
+:- dynamic carro/3.
+
+adicionar_carro(CPF, Codigo, Quantidade):-
+    assertz(carro(CPF, verificar_produto(Codigo), Quantidade)).
+
+atualizar_carro(nomeProduto, quantidadeProduto):-
+    retract(carro(nomeProduto, quantidadeProduto)),
+    assertz(carro(nomeProduto, quantidadeProduto)).
+
+remover_produto_carro(nomeProduto)
+    retract(carro(nomeProduto, _)).
+
+mostrarCarro(CPF):-
+   carro(CPF, verificar_produto(Codigo), Quantidade),
+    format('========================================~n'),
+    format('Codigo:        | ~w~n', [Codigo]),
+    format('----------------------------------------~n'),
+    format('Quantidade:      | ~w~n', [Quantidade]),
+    format('----------------------------------------~n'),
+    format('Nome:      | ~w~n', [Nome]),
+    format('----------------------------------------~n').
+    
+
+%--------------------------------------------------------------------------------------------------------------------------------------------
+% historico
+%--------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 % ===================================================================================================================
