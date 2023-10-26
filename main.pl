@@ -537,3 +537,59 @@ ler_codigo_csv(NomeArquivo) :-
 gravar_codigo_csv(NomeArquivo) :-
     contador_codigo(Valor),
     csv_write_file(NomeArquivo, [row(Valor)]).
+
+
+
+
+% ===================================================================================================================
+% Dashboard
+% ===================================================================================================================
+
+
+% Função para calcular a quantidade total de produtos em estoque
+quantidade_total_estoque(Total) :-
+    findall(Q, produto(_, _, _, _, _, _, Q, _, _), Quantidades),
+    sum_list(Quantidades, Total).
+
+% Função para listar produtos com estoque baixo (estoque < 10)
+produtos_com_estoque_baixo(Produtos) :-
+    findall(P, (produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), Quantidade < 10), Produtos).
+
+% Função para calcular a receita total gerada por todos os produtos
+receita_total_por_produto(ReceitaTotal) :-
+    findall(Receita, (produto(_, _, _, _, _, PrecoVenda, Quantidade, _, _), Receita is PrecoVenda * Quantidade), Receitas),
+    sum_list(Receitas, ReceitaTotal).
+
+% Função para calcular a receita total gerada por categoria
+receita_total_por_categoria(Categoria, ReceitaTotal) :-
+    findall(Receita, (produto(_, _, _, Categoria, _, PrecoVenda, Quantidade, _, _), Receita is PrecoVenda * Quantidade), Receitas),
+    sum_list(Receitas, ReceitaTotal).
+
+% Função para encontrar os produtos mais populares (com base na quantidade)
+produtos_mais_populares(Produtos) :-
+    findall([Quantidade, produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade)], produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), ListaProdutos),
+    sort(ListaProdutos, ListaOrdenada),
+    reverse(ListaOrdenada, ListaReversa),
+    take(5, ListaReversa, Produtos).
+
+% Helper: Função para pegar os N primeiros itens de uma lista
+take(0, _, []).
+take(_, [], []).
+take(N, [H|T], [H|Result]) :-
+    N > 0,
+    N1 is N-1,
+    take(N1, T, Result).
+
+% Função para calcular os clientes mais ativos
+clientes_mais_ativos(Clientes) :-
+    findall([Len, cliente(CPF, Nome, Historico)], (cliente(CPF, Nome, Historico), length(Historico, Len)), ListaClientes),
+    sort(ListaClientes, ListaOrdenada),
+    reverse(ListaOrdenada, ListaReversa),
+    take(5, ListaReversa, Clientes).
+
+% Função para calcular a media de compras por cliente
+media_compras_por_cliente(Media) :-
+    findall(Len, (cliente(_, _, Historico), length(Historico, Len)), ListaCompras),
+    sum_list(ListaCompras, TotalCompras),
+    length(ListaCompras, TotalClientes),
+    (TotalClientes =:= 0 -> Media = 0 ; Media is TotalCompras / TotalClientes).
