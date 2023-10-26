@@ -271,7 +271,7 @@ admController :-
     writeln('  (05) Visualizar Produtos por Categoria'),
     writeln('  (06) Remover Produto por Código'),
     writeln('  (07) Ler Cliente por CPF'),
-	writeln('  (08) Ver Avaliacoes de um produto')
+	writeln('  (08) Ver Avaliacoes de um produto'),
     writeln('  (09) Atualizar Cliente Completo'),
     writeln('  (10) Deletar Cliente por CPF'),
 	writeln('  (11) Adicionar Categoria'),
