@@ -107,10 +107,12 @@ clienteController :-
     writeln('  (04) Remover do Carrinho'),
     writeln('  (05) Visualizar Carrinho'),
     writeln('  (06) Finalizar Compra'),
-    writeln('  (07) Atualizar Meu Cadastro'),
-    writeln('  (08) Deletar Minha Conta'),
-    writeln('  (09) Sair do Modo Cliente'),
-    writeln('  (10) Sair do Sistema'),
+	writeln('  (07) Avaliar um Produto'),
+	writeln('  (08) Ver avaliações de um Produto'),
+    writeln('  (09) Atualizar Meu Cadastro'),
+    writeln('  (10) Deletar Minha Conta'),
+    writeln('  (11) Sair do Modo Cliente'),
+    writeln('  (12) Sair do Sistema'),
     writeln('Digite a opção desejada: '),
     read(Opcao),
     processar_opcao_cliente(Opcao).
@@ -163,10 +165,29 @@ processar_opcao_cliente(06) :-
     clienteController.
 
 processar_opcao_cliente(07) :-
+    % Lógica para finalizar compra
+    writeln('Digite seu CPF:'),
+    read(CPF),
+    writeln('Digite o codigo do Produto a ser avaliado:'),
+    read(CodigoProduto),
+	writeln('Digite a sua nota para este produto'),
+    read(NotaAvaliacao),
+	writeln('Digite a sua avaliação deste produto:'),
+    read(user, TextAvaliacao),
+    avalia_produto(CPF, CodigoProduto,TextAvaliacao,NotaAvaliacao),
+    clienteController.
+
+processar_opcao_cliente(08) :-
+    writeln('Ver avaliacao de um produto, digite o codigo do produto:'),
+    read(CodigoProduto),
+    imprimir_avaliacao_produto(CodigoProduto),
+    clienteController.
+
+processar_opcao_cliente(09) :-
     % Lógica para atualizar cadastro
     clienteAtualizarCadastroController.
 
-processar_opcao_cliente(08) :-
+processar_opcao_cliente(10) :-
     % Lógica para deletar conta
 	writeln('Digite seu CPF'),
     read(CPF),
@@ -174,12 +195,12 @@ processar_opcao_cliente(08) :-
 	writeln('Cliente Apagado com sucesso'),
     initialController.
 
-processar_opcao_cliente(09) :-
+processar_opcao_cliente(11) :-
     writeln('Saindo do modo cliente.'),
     initialController.
 
 % Opção para sair do sistema
-processar_opcao_cliente(10) :-
+processar_opcao_cliente(12) :-
     fechar_sistema.
 
 % Opção inválida
@@ -250,13 +271,14 @@ admController :-
     writeln('  (05) Visualizar Produtos por Categoria'),
     writeln('  (06) Remover Produto por Código'),
     writeln('  (07) Ler Cliente por CPF'),
-    writeln('  (08) Atualizar Cliente Completo'),
-    writeln('  (09) Deletar Cliente por CPF'),
-    writeln('  (10) Visualizar Dashboard'),
-    writeln('  (11) Adicionar Categoria'),
+	writeln('  (08) Ver Avaliacoes de um produto')
+    writeln('  (09) Atualizar Cliente Completo'),
+    writeln('  (10) Deletar Cliente por CPF'),
+	writeln('  (11) Adicionar Categoria'),
     writeln('  (12) Remover Categoria e Produtos'),
-    writeln('  (13) Sair do Modo Administrador'), 
-    writeln('  (14) Sair do Sistema'), 
+    writeln('  (13) Visualizar Dashboard'),
+    writeln('  (14) Sair do Modo Administrador'),
+    writeln('  (15) Sair do Sistema'),
     writeln('Digite a opção desejada: '),
     read(Opcao),
     admController_processar_opcao(Opcao).
@@ -319,6 +341,12 @@ admController_processar_opcao(07) :-
     admController.
 
 admController_processar_opcao(08) :-
+    writeln('Ver avaliacao de um produto, digite o codigo do produto:'),
+    read(CodigoProduto),
+    imprimir_avaliacao_produto(CodigoProduto),
+    admController.
+
+admController_processar_opcao(09) :-
     writeln('Digite o CPF do cliente a ser atualizado: '),
     read(CPF),
     (verificar_cliente(CPF) ->
@@ -329,7 +357,7 @@ admController_processar_opcao(08) :-
     ),
     admController.
 
-admController_processar_opcao(09) :-
+admController_processar_opcao(10) :-
     writeln('Digite o CPF do cliente: '),
     read(CPF),
     (verificar_cliente(CPF) ->
@@ -339,7 +367,7 @@ admController_processar_opcao(09) :-
     ),
     admController.
 
-admController_processar_opcao(10) :-
+admController_processar_opcao(13) :-
     repeat,
     writeln('Escolha o tipo de dashboard:'),
     writeln('  (1) Quantidade total de produtos em estoque'),
@@ -360,19 +388,19 @@ exibir_dashboard(1) :-
     quantidade_total_estoque(TotalEstoque),
     format('Quantidade total de produtos em estoque: ~w~n', [TotalEstoque]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(2) :-
     produtos_com_estoque_baixo(ProdutosBaixo),
     format('Produtos com estoque baixo: ~w~n', [ProdutosBaixo]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(3) :-
     receita_total_por_produto(ReceitaTotal),
     format('Receita total gerada por todos os produtos: ~w~n', [ReceitaTotal]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(4) :-
     writeln('Digite a categoria desejada: '),
@@ -380,30 +408,30 @@ exibir_dashboard(4) :-
     receita_total_por_categoria(Categoria, ReceitaTotal),
     format('Receita total gerada pela categoria ~w: ~w~n', [Categoria, ReceitaTotal]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(5) :-
     produtos_mais_populares(ProdutosPopulares),
     format('Produtos mais populares: ~w~n', [ProdutosPopulares]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(6) :-
     clientes_mais_ativos(ClientesAtivos),
     format('Clientes mais ativos: ~w~n', [ClientesAtivos]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(7) :-
     media_compras_por_cliente(MediaCompras),
     format('Média de compras por cliente: ~w~n', [MediaCompras]),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 exibir_dashboard(_) :-
     writeln('Opção de dashboard inválida. Tente novamente.'),
     nl,
-    admController_processar_opcao(10).
+    admController_processar_opcao(13).
 
 admController_processar_opcao(11) :-
     writeln('Digite a categoria a ser adicionada: '),
@@ -427,11 +455,11 @@ admController_processar_opcao(12) :-
     ),
     admController.
 
-admController_processar_opcao(13) :-
+admController_processar_opcao(14) :-
     writeln('Saindo do modo administrador.'),
     initialController.
 
-admController_processar_opcao(14) :-
+admController_processar_opcao(15) :-
     fechar_sistema.
 
 admController_processar_opcao(_) :-
@@ -501,7 +529,7 @@ imprimir_produto(Codigo) :-
 
 % Predicado para imprimir produtos de uma determinada categoria
 imprimir_produtos_por_categoria(Categoria) :-
-    findall((Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), 
+    findall((Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
             produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), Produtos),
     imprimir_lista_produtos(Produtos).
 
@@ -630,6 +658,28 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
     writeln('Digite a senha do cliente: '),
     read(Senha).
 
+%--------------------------------------------------------------------------------------------------------------------------------------------
+% Avaliação
+%--------------------------------------------------------------------------------------------------------------------------------------------
+
+avalia_produto(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao):-
+	assertz(avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao)),
+	writeln("Produto Avaliado com sucesso!").
+
+imprimir_avaliacao_produto(CodigoProduto) :-
+    avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao),
+    format('Avaliacao'),
+    format('========================================~n'),
+    format('CPF:        | ~w~n', [CPF]),
+    format('----------------------------------------~n'),
+    format('codigo:      | ~w~n', [CodigoProduto]),
+    format('----------------------------------------~n'),
+    format('NOTA:  | ~w~n', [NotaAvaliacao]),
+    format('----------------------------------------~n'),
+    format('Avaliacao:   | ~w~n', [TextAvaliacao]),
+    format('========================================~n'),
+    fail.
+
 % Predicado para imprimir uma lista de produtos
 imprimir_lista_produtos([]).
 imprimir_lista_produtos([(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) | Resto]) :-
@@ -737,6 +787,9 @@ imprimir_historico(CPF, DataCompra) :-
     format('----------------------------------------~n'),
     format('Quantidade no Comprada:    | ~w~n', [Quantidade_Carrinho]),
     format('----------------------------------------~n'),
+	NovaQuantidade is Quantidade - Quantidade_Carrinho,
+	(NovaQuantidade > 0 -> NovaDisponibilidade = true; NovaDisponibilidade = false),
+	atualizar_produto(Codigo, NovaDisponibilidade, Nome, Categoria, PrecoCompra, PrecoVenda, NovaQuantidade, Fabricacao, Validade),
     remover_carrinho(CPF, Codigo),
     fail.
 
