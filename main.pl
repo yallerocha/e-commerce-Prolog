@@ -108,14 +108,12 @@ processar_opcao_cliente(03) :-
     clienteController.
 
 processar_opcao_cliente(04) :-
-    % Lógica para remover carrinho
+    % Lógica para remover do carrinho
     writeln('Digite o cpf'),
     read(CPF),
     writeln('Digite o codigo do produto'),
     read(Codigo),
-    writeln('Digite a quantidade a ser retirada'),
-    read(QuantidadeCarrinhoRetirada),
-    atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada),
+    remover_carro(CPF, Codigo),
     clienteController.
 
 processar_opcao_cliente(05) :-
@@ -444,14 +442,8 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
 adicionar_carro(CPF, Codigo, Quantidade_Carrinho):-
     assertz(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
-atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada):-
-    quantidade_carrinho(CPF, Retorno),
-    Quantidade_final is Retorno - QuantidadeCarrinhoRetirada,
-    retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)),
-    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_final)).
-
-remover_produto_carro(nomeProduto)
-    retract(carro(nomeProduto, _)).
+remover_carro(CPF, Codigo):-
+    retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
 tem_carrinho(CPF):-
     carro(CPF, _, _).
@@ -476,11 +468,9 @@ imprimir_produtos_carro(Codigo, Quantidade_Carrinho) :-
     format('----------------------------------------~n'),
     format('Categoria:   | ~w~n', [Categoria]),
     format('----------------------------------------~n'),
-    format('Preço Compra:| R$~w~n', [PrecoCompra]),
+    format('Preço: | R$~w~n', [PrecoVenda]),
     format('----------------------------------------~n'),
-    format('Preço Venda: | R$~w~n', [PrecoVenda]),
-    format('----------------------------------------~n'),
-    format('Quantidade:  | ~w~n', [Quantidade]),
+    format('Estoque:  | ~w~n', [Quantidade]),
     format('----------------------------------------~n'),
     format('Fabricação:  | ~w~n', [Fabricacao]),
     format('----------------------------------------~n'),
