@@ -250,8 +250,68 @@ admController_processar_opcao(09) :-
     admController.
 
 admController_processar_opcao(10) :-
-    % Lógica para visualizar dashboard
-    admController.
+    repeat,
+    writeln('Escolha o tipo de dashboard:'),
+    writeln('  (1) Quantidade total de produtos em estoque'),
+    writeln('  (2) Produtos com estoque baixo'),
+    writeln('  (3) Receita total gerada por todos os produtos'),
+    writeln('  (4) Receita total por categoria'),
+    writeln('  (5) Produtos mais populares'),
+    writeln('  (6) Clientes mais ativos'),
+    writeln('  (7) Média de compras por cliente'),
+    writeln('  (0) Voltar ao Menu de Administrador'),
+    read(OpcaoDashboard),
+    (OpcaoDashboard =:= 0 -> !, admController ; exibir_dashboard(OpcaoDashboard), !),
+    fail.
+
+exibir_dashboard(1) :-
+    quantidade_total_estoque(TotalEstoque),
+    format('Quantidade total de produtos em estoque: ~w~n', [TotalEstoque]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(2) :-
+    produtos_com_estoque_baixo(ProdutosBaixo),
+    format('Produtos com estoque baixo: ~w~n', [ProdutosBaixo]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(3) :-
+    receita_total_por_produto(ReceitaTotal),
+    format('Receita total gerada por todos os produtos: ~w~n', [ReceitaTotal]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(4) :-
+    writeln('Selecione uma categoria:'),
+    read(Categoria),
+    receita_total_por_categoria(Categoria, ReceitaTotal),
+    format('Receita total gerada pela categoria ~w: ~w~n', [Categoria, ReceitaTotal]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(5) :-
+    produtos_mais_populares(ProdutosPopulares),
+    format('Produtos mais populares: ~w~n', [ProdutosPopulares]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(6) :-
+    clientes_mais_ativos(ClientesAtivos),
+    format('Clientes mais ativos: ~w~n', [ClientesAtivos]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(7) :-
+    media_compras_por_cliente(MediaCompras),
+    format('Média de compras por cliente: ~w~n', [MediaCompras]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(_) :-
+    writeln('Opção de dashboard inválida. Tente novamente.'),
+    nl,
+    admController_processar_opcao(10).
 
 admController_processar_opcao(11) :-
     writeln('Saindo do modo administrador.'),
