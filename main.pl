@@ -451,7 +451,7 @@ criar_categoria(Categoria) :-
 % Predicado para deletar uma categoria (isso também apaga os produtos da categoria)
 deletar_categoria(Categoria) :-
     retract(categoria(Categoria)),
-    retractall(produto(_,_,_,Categoria,_,_,_,_,_)).
+    deletar_produtos_por_categoria(Categoria).
 
 % ===================================================================================================================
 % Produto
@@ -471,6 +471,10 @@ atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoComp
 % Predicado para deletar um produto por código
 deletar_produto(Codigo) :-
     retract(produto(Codigo, _, _, _, _, _, _, _, _)).
+
+% predicado para deletar produtos por categoria
+deletar_produtos_por_categoria(Categoria) :-
+    retractall(produto(_, _, _, Categoria, _, _, _, _, _)).
 
 % Predicado para imprimir um produto
 imprimir_produto(Codigo) :-
