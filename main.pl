@@ -594,6 +594,7 @@ iniciar_sistema :-
     ler_codigo_csv('NextCodigo.csv'),
     ler_carrinhos_csv('Carrinhos.csv'),
     ler_categorias_csv('Categorias.csv'),
+    ler_avaliacoes_csv('Avaliacoes.csv'),
     initialController.
 
 % Predicado para fechar o sistema
@@ -604,6 +605,7 @@ fechar_sistema :-
     gravar_codigo_csv('NextCodigo.csv'),
     gravar_carrinhos_csv('Carrinhos.csv'),
     gravar_categorias_csv('Categorias.csv'),
+    gravar_avaliacoes_csv('Avaliacoes.csv'),
     halt.
 
 % Predicado para verificar se um produto existe
@@ -661,6 +663,8 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
 %--------------------------------------------------------------------------------------------------------------------------------------------
 % Avaliação
 %--------------------------------------------------------------------------------------------------------------------------------------------
+
+:- dynamic avaliacao/4.
 
 avalia_produto(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao):-
 	assertz(avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao)),
@@ -757,7 +761,7 @@ imprimir_produtos_carrinho(Codigo, Quantidade_Carrinho) :-
 
 
 %--------------------------------------------------------------------------------------------------------------------------------------------
-% historico
+% Histórico de compras
 %--------------------------------------------------------------------------------------------------------------------------------------------
 
 :- dynamic historico/2.
@@ -802,18 +806,79 @@ imprimir_historico(CPF, DataCompra) :-
 % Predicado para ler os dados do arquivo CSV de produtos
 ler_produtos_csv(NomeArquivoProdutos) :-
     (   csv_read_file(NomeArquivoProdutos, ProdutoRows, [])
-    ->  writeln('Arquivo de produtos lido com sucesso.'),
-        processar_linhas(ProdutoRows, produto)
+    ->  processar_linhas(ProdutoRows, produto)
     ;   writeln('Erro ao ler o arquivo de produtos.')
     ).
 
 % Predicado para ler os dados do arquivo CSV de clientes
 ler_clientes_csv(NomeArquivoClientes) :-
     (   csv_read_file(NomeArquivoClientes, ClienteRows, [])
-    ->  writeln('Arquivo de clientes lido com sucesso.'),
-        processar_linhas(ClienteRows, cliente)
+    ->  processar_linhas(ClienteRows, cliente)
     ;   writeln('Erro ao ler o arquivo de clientes.')
     ).
+
+% Predicado para inicializar o contador de código
+ler_codigo_csv(NomeArquivo) :-
+    (   csv_read_file(NomeArquivo, [row(Valor)], [])
+    ->  asserta(contador_codigo(Valor))
+    ;   writeln('Erro ao ler o arquivo de codigo.')
+    ).
+
+% Predicado para ler os dados do arquivo CSV de carrinhos
+ler_carrinhos_csv(NomeArquivoCarrinhos) :-
+    (   csv_read_file(NomeArquivoCarrinhos, CarrinhoRows, [])
+    ->  processar_linhas(CarrinhoRows, carrinho)
+    ;   writeln('Erro ao ler o arquivo de carrinhos.')
+    ).
+
+% Predicado para ler as categorias de produtos do arquivo CSV
+ler_categorias_csv(NomeArquivoCategorias) :-
+    (   csv_read_file(NomeArquivoCategorias, CategoriaRows, [])
+    ->  processar_linhas(CategoriaRows, categoria)
+    ;   writeln('Erro ao ler o arquivo de categorias.')
+    ).
+
+% Predicado para ler as avaliacoes de produtos do arquivo CSV
+ler_avaliacoes_csv(NomeArquivoAvaliacoes) :-
+    (   csv_read_file(NomeArquivoAvaliacoes, AvaliacaoRows, [])
+    ->  processar_linhas(AvaliacaoRows, avaliacao)
+    ;   writeln('Erro ao ler o arquivo de avaliacoes.')
+    ).
+
+% Predicado para gravar produtos em um arquivo CSV
+gravar_produtos_csv(NomeArquivo) :-
+    findall(row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+        produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), ProdutoRows),
+    csv_write_file(NomeArquivo, ProdutoRows).
+
+% Predicado para gravar clientes em um arquivo CSV
+gravar_clientes_csv(NomeArquivo) :-
+    findall(row(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
+        cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha), ClienteRows),
+    csv_write_file(NomeArquivo, ClienteRows).
+
+% Predicado para salvar o valor do contador em um arquivo CSV
+gravar_codigo_csv(NomeArquivo) :-
+    contador_codigo(Valor),
+    csv_write_file(NomeArquivo, [row(Valor)]).
+
+% Predicado para salvar os carrinhos de compra em um arquivo CSV
+gravar_carrinhos_csv(NomeArquivo) :-
+    findall(row(CPF, Codigo, Quantidade_Carrinho),
+        carrinho(CPF, Codigo, Quantidade_Carrinho), CarrinhoRows),
+    csv_write_file(NomeArquivo, CarrinhoRows).
+
+% Predicado para salvar as categorias de produto em um arquivo CSV
+gravar_categorias_csv(NomeArquivo) :-
+    findall(row(Categoria),
+        categoria(Categoria), CategoriaRows),
+    csv_write_file(NomeArquivo, CategoriaRows).
+
+% Predicado para salvar as avaliacoes de produto em um arquivo CSV
+gravar_avaliacoes_csv(NomeArquivo) :-
+    findall(row(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao),
+        avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao), AvaliacaoRows),
+    csv_write_file(NomeArquivo, AvaliacaoRows).
 
 % Predicado para processar as linhas lidas do CSV
 processar_linhas([], _).
@@ -844,64 +909,15 @@ processar_linha(Row, categoria) :-
     Row = row(Categoria),
     assertz(categoria(Categoria)).
 
-% Predicado para gravar produtos em um arquivo CSV
-gravar_produtos_csv(NomeArquivo) :-
-    findall(row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
-        produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), ProdutoRows),
-    csv_write_file(NomeArquivo, ProdutoRows).
-
-% Predicado para gravar clientes em um arquivo CSV
-gravar_clientes_csv(NomeArquivo) :-
-    findall(row(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
-        cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha), ClienteRows),
-    csv_write_file(NomeArquivo, ClienteRows).
-
-% Predicado para inicializar o contador de código
-ler_codigo_csv(NomeArquivo) :-
-    (   csv_read_file(NomeArquivo, [row(Valor)], [])
-    ->  writeln('Arquivo de codigo lido com sucesso.'),
-        asserta(contador_codigo(Valor))
-    ;   writeln('Erro ao ler o arquivo de codigo.')
-    ).
-
-% Predicado para salvar o valor do contador em um arquivo CSV
-gravar_codigo_csv(NomeArquivo) :-
-    contador_codigo(Valor),
-    csv_write_file(NomeArquivo, [row(Valor)]).
-
-% Predicado para ler os dados do arquivo CSV de carrinhos
-ler_carrinhos_csv(NomeArquivoCarrinhos) :-
-    (   csv_read_file(NomeArquivoCarrinhos, CarrinhoRows, [])
-    ->  writeln('Arquivo de carrinhos lido com sucesso.'),
-        processar_linhas(CarrinhoRows, carrinho)
-    ;   writeln('Erro ao ler o arquivo de carrinhos.')
-    ).
-
-% Predicado para salvar os carrinhos de compra em um arquivo CSV
-gravar_carrinhos_csv(NomeArquivo) :-
-    findall(row(CPF, Codigo, Quantidade_Carrinho),
-        carrinho(CPF, Codigo, Quantidade_Carrinho), CarrinhoRows),
-    csv_write_file(NomeArquivo, CarrinhoRows).
-
-% Predicado para ler as categorias de produtos do arquivo CSV
-ler_categorias_csv(NomeArquivoCategorias) :-
-    (   csv_read_file(NomeArquivoCategorias, CategoriaRows, [])
-    ->  writeln('Arquivo de categorias lido com sucesso.'),
-        processar_linhas(CategoriaRows, categoria)
-    ;   writeln('Erro ao ler o arquivo de categorias.')
-    ).
-
-% Predicado para salvar as categorias de produto em um arquivo CSV
-gravar_categorias_csv(NomeArquivo) :-
-    findall(row(Categoria),
-        categoria(Categoria), CategoriaRows),
-    csv_write_file(NomeArquivo, CategoriaRows).
+% Predicado para processar linha de avaliacao e criar predicados
+processar_linha(Row, avaliacao) :-
+    Row = row(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao),
+    assertz(avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao)).
 
 
 % ===================================================================================================================
 % Dashboard
 % ===================================================================================================================
-
 
 % Função para calcular a quantidade total de produtos em estoque
 quantidade_total_estoque(Total) :-

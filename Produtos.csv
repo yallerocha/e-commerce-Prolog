@@ -1,3 +1,42 @@
-80,true,Maçã Verde,Frutas,5.99,7.99,100,10-01-2023,10-02-2023
+80,true,Maçã Verde,Alimentos,5.99,7.99,100,10-01-2023,10-02-2023
 81,true,Notebook,Eletrônicos,1299.99,1599.99,10,15-03-2023,15-03-2024
-82,true,Camiseta,Vestuário,15.99,29.99,50,20-04-2023,20-04-2033
+82,true,Camiseta,Roupas,15.99,29.99,50,20-04-2023,20-04-2033
+83,true,Fogão,Eletrodomésticos,299.99,499.99,20,05-05-2023,05-05-2025
+84,true,Tênis Esportivo,Esportes,39.99,79.99,30,10-06-2023,10-06-2024
+85,true,Colar de Pérolas,Joias,49.99,99.99,15,15-07-2023,15-07-2025
+86,true,Caneta Esferográfica,Material de Escritório,1.99,3.99,100,20-08-2023,20-08-2024
+87,true,Churrasqueira a Carvão,Jardinagem,49.99,79.99,10,25-09-2023,25-09-2024
+88,true,Kit de Pintura,Artesanato,19.99,29.99,25,30-10-2023,30-10-2024
+89,true,Aspirador de Pó,Eletrodomésticos,79.99,149.99,15,05-11-2023,05-11-2024
+90,true,Panela de Pressão,Eletrodomésticos,29.99,49.99,20,10-12-2023,10-12-2025
+91,true,Relógio de Pulso,Joias,69.99,129.99,30,15-01-2024,15-01-2026
+92,true,Agenda de Couro,Material de Escritório,9.99,19.99,50,20-02-2024,20-02-2025
+93,true,Semente de Tomate,Jardinagem,2.99,4.99,200,25-03-2024,25-03-2025
+94,true,Conjunto de Talheres,Casa e Cozinha,19.99,39.99,40,30-04-2024,30-04-2025
+95,true,Amplificador de Guitarra,Música,49.99,99.99,10,05-05-2024,05-05-2025
+96,true,Fraldas para Bebê,Bebeês,12.99,24.99,60,10-06-2024,10-06-2025
+97,true,Óculos de Sol,Moda,29.99,59.99,25,15-07-2024,15-07-2025
+98,true,Telefone Celular,Eletrônicos,299.99,599.99,10,20-08-2024,20-08-2025
+99,true,Panela de Ferro Fundido,Casa e Cozinha,24.99,49.99,15,25-09-2024,25-09-2025
+100,true,Escova de Dentes Elétrica,Beleza,19.99,39.99,30,30-10-2024,30-10-2025
+101,true,Caneca Personalizada,Casa e Cozinha,7.99,14.99,50,05-11-2024,05-11-2025
+102,true,Mouse sem Fio,Eletrônicos,9.99,19.99,100,10-12-2024,10-12-2025
+103,true,Relógio Desportivo,Esportes,39.99,79.99,20,15-01-2025,15-01-2026
+104,true,Colchão de Molas,Casa e Cozinha,149.99,299.99,10,20-02-2025,20-02-2026
+105,true,Bicicleta Dobrável,Esportes,99.99,199.99,15,25-03-2025,25-03-2026
+106,true,Secador de Cabelo,Beleza,14.99,29.99,30,30-04-2025,30-04-2026
+107,true,Óleo de Motor,Automóveis,9.99,19.99,100,05-05-2025,05-05-2026
+108,true,Chapéu de Sol,Praia,7.99,15.99,40,10-06-2025,10-06-2026
+109,true,Escova de Limpeza Facial,Beleza,5.99,12.99,60,15-07-2025,15-07-2026
+110,true,Carregador Portátil,Eletrônicos,12.99,24.99,50,20-08-2025,20-08-2026
+111,true,Varinha Mágica de Cozinha,Casa e Cozinha,19.99,39.99,25,25-09-2025,25-09-2026
+112,true,Óculos de Leitura,Moda,12.99,24.99,5,05-10-2023,05-10-2024
+113,true,Mini Ventilador Portátil,Eletrônicos,7.99,14.99,3,10-11-2023,10-11-2024
+114,true,Caneta Tinteiro,Material de Escritório,4.99,9.99,8,15-12-2023,15-12-2024
+115,true,Colchonete de Yoga,Esportes,19.99,39.99,7,20-01-2024,20-01-2025
+116,true,Luminária de Mesa,Decoração,8.99,17.99,2,25-02-2024,25-02-2025
+117,true,Leite de Amêndoa,Alimentos,2.99,4.99,6,30-03-2024,30-03-2025
+118,true,Escova de Cabelo,Beleza,3.99,7.99,4,05-04-2024,05-04-2025
+119,true,Parafusos e Porcas,Ferramentas,0.99,1.99,9,10-05-2024,10-05-2025
+120,true,Protetor Solar,Beleza,6.99,12.99,1,15-06-2024,15-06-2025
+121,true,Balde de Pipoca,Decoração,2.99,4.99,3,20-07-2024,20-07-2025
