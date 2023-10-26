@@ -104,7 +104,7 @@ processar_opcao_cliente(03) :-
     read(Codigo),
     writeln('Digite a quantidade'),
     read(Quantidade_Carrinho),
-    adicionar_carro(CPF, Codigo, Quantidade_Carrinho),
+    adicionar_carrinho(CPF, Codigo, Quantidade_Carrinho),
     clienteController.
 
 processar_opcao_cliente(04) :-
@@ -113,14 +113,14 @@ processar_opcao_cliente(04) :-
     read(CPF),
     writeln('Digite o codigo do produto'),
     read(Codigo),
-    remover_carro(CPF, Codigo),
+    remover_carrinho(CPF, Codigo),
     clienteController.
 
 processar_opcao_cliente(05) :-
     % Lógica para visualizar carrinho
     writeln('Digite seu CPF'),
     read(CPF),
-    mostrarCarro(CPF),
+    mostrarcarrinho(CPF),
     clienteController.
 
 processar_opcao_cliente(06) :-
@@ -335,10 +335,14 @@ admController_processar_opcao(_) :-
 % ===================================================================================================================
 
 :- dynamic produto/9.
+:- dynamic categoria/1.
 
 % Predicado para criar um produto
 criar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) :-
     assertz(produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade)).
+
+criar_categoria(Categoria) :-
+    assertz(categoria(Categoria)).
 
 % Predicado para atualizar um produto
 atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoCompra, NovoPrecoVenda, NovaQuantidade, NovaFabricacao, NovaValidade) :-
@@ -348,6 +352,11 @@ atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoComp
 % Predicado para deletar um produto por código
 deletar_produto(Codigo) :-
     retract(produto(Codigo, _, _, _, _, _, _, _, _)).
+
+% Predicado para deletar uma categoria (isso também apaga os produtos dela)
+deletar_categoria(Categoria) :-
+    retrac(categoria(Categoria)),
+    retrac(produto(_,_,_,Categoria,_,_,_,_,_)).
 
 % Predicado para imprimir um produto
 imprimir_produto(Codigo) :-
@@ -446,6 +455,7 @@ iniciar_sistema :-
     ler_produtos_csv('Produtos.csv'),
     ler_clientes_csv('Clientes.csv'),
     ler_codigo_csv('NextCodigo.csv'),
+    ler_carrinhos_csv('Carrinhos.csv'),
     initialController.
 
 % Predicado para fechar o sistema
@@ -453,7 +463,8 @@ fechar_sistema :-
     writeln('Fechando o sistema...'),
     gravar_produtos_csv('Produtos.csv'),
     gravar_clientes_csv('Clientes.csv'),
-    gravar_codigo_csv('NextCodigo.csv'), 
+    gravar_codigo_csv('NextCodigo.csv'),
+    gravar_carrinho_csv('Carrinhos.csv'),
     halt.
 
 % Predicado para verificar se um produto existe
@@ -470,6 +481,9 @@ ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fa
     read(Nome),
     writeln('Digite a categoria do produto: '),
     read(Categoria),
+    (categoria(Categoria) 
+    ; writeln('Categoria inválida. Tente novamente!'),
+    halt)
     writeln('Digite o preço de compra do produto: '),
     read(PrecoCompra),
     writeln('Digite o preço de venda do produto: '),
@@ -501,33 +515,33 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
     read(Senha).
 
 %--------------------------------------------------------------------------------------------------------------------------------------------
-% carrinho
+% Carrinho
 %--------------------------------------------------------------------------------------------------------------------------------------------
 
-:- dynamic carro/3.
+:- dynamic carrinho/3.
 
-adicionar_carro(CPF, Codigo, Quantidade_Carrinho):-
-    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
+adicionar_carrinho(CPF, Codigo, Quantidade_Carrinho):-
+    assertz(carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
-remover_carro(CPF, Codigo):-
-    retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
+remover_carrinho(CPF, Codigo):-
+    retract(carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
-remover_carro(CPF):-
-    retract(carro(CPF, _, _)).
+remover_carrinho(CPF):-
+    retract(carrinho(CPF, _, _)).
 
 tem_carrinho(CPF):-
-    carro(CPF, _, _).
+    carrinho(CPF, _, _).
 
 quantidade_carrinho(CPF, Retorno):-
-    carro(CPF, _, Quantidade_Carrinho),
+    carrinho(CPF, _, Quantidade_Carrinho),
     Retorno = Quantidade_Carrinho.
 
-mostrarCarro(CPF):-
-    carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
-    imprimir_produtos_carro(Codigo, Quantidade_Carrinho).
+mostrarcarrinho(CPF):-
+    carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    imprimir_produtos_carrinho(Codigo, Quantidade_Carrinho).
 
 
-imprimir_produtos_carro(Codigo, Quantidade_Carrinho) :-
+imprimir_produtos_carrinho(Codigo, Quantidade_Carrinho) :-
     produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     format('Seu Carrinho de Compras~n'),
     format('========================================~n'),
@@ -563,7 +577,7 @@ finalizar_compra(CPF, DataCompra):-
    imprimir_historico(CPF, DataCompra). 
 
 imprimir_historico(CPF, DataCompra) :-
-    carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
     produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     format('Seu Comprovante de Compra~n'),
     format('========================================~n'),
@@ -583,7 +597,7 @@ imprimir_historico(CPF, DataCompra) :-
     format('----------------------------------------~n'),
     format('Quantidade no Comprada:    | ~w~n', [Quantidade_Carrinho]),
     format('----------------------------------------~n'),
-    remover_carro(CPF, Codigo),
+    remover_carrinho(CPF, Codigo),
     fail.
 
 % ===================================================================================================================
@@ -622,10 +636,20 @@ processar_linha(Row, produto) :-
     Row = row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     assertz(produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade)).
 
-% Predicado para processar uma de clientes e criar predicados
+% Predicado para processar uma linha de clientes e criar predicados
 processar_linha(Row, cliente) :-
     Row = row(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
     assertz(cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha)).
+
+% Predicado para processar uma linha de carrinhos e criar predicados
+processar_linha(Row, carrinho) :-
+    Row = row(CPF, Codigo, Quantidade_Carrinho),
+    assertz(carrinho(CPF, Codigo, Quantidade_Carrinho)).
+
+% Predicado para processar uma linha de categorias e criar predicados
+processar_linha(Row, categoria) :-
+    Row = row(Categoria),
+    assertz(categoria(Categoria)).
 
 % Predicado para gravar produtos em um arquivo CSV
 gravar_produtos_csv(NomeArquivo) :-
@@ -651,6 +675,34 @@ ler_codigo_csv(NomeArquivo) :-
 gravar_codigo_csv(NomeArquivo) :-
     contador_codigo(Valor),
     csv_write_file(NomeArquivo, [row(Valor)]).
+
+% Predicado para ler os dados do arquivo CSV de carrinhos
+ler_carrinhos_csv(NomeArquivoCarrinhos) :-
+    (   csv_read_file(NomeArquivoCarrinhos, CarrinhoRows, [])
+    ->  writeln('Arquivo de carrinhos lido com sucesso.'),
+        processar_linhas(CarrinhoRows, carrinho)
+    ;   writeln('Erro ao ler o arquivo de carrinhos.')
+    ).
+
+% Predicado para salvar os carrinhos de compra em um arquivo CSV
+gravar_carrinhos_csv(NomeArquivo) :-
+    findall(row(CPF, Codigo, Quantidade_Carrinho),
+        carrinho(CPF, Codigo, Quantidade_Carrinho), CarrinhoRows),
+    csv_write_file(NomeArquivo, CarrinhoRows).
+
+% Predicado para ler as categorias de produtos do arquivo CSV 
+ler_categorias_csv(NomeArquivoCategorias) :-
+    (   csv_read_file(NomeArquivoCategorias, CategoriaRows, [])
+    ->  writeln('Arquivo de categorias lido com sucesso.'),
+        processar_linhas(CategoriaRows, categoria)
+    ;   writeln('Erro ao ler o arquivo de categorias.')
+    ).
+
+% Predicado para salvar as categorias de produto em um arquivo CSV
+gravar_categorias_csv(NomeArquivo) :-
+    findall(row(Categoria),
+        categoria(Categoria), CategoriaRows),
+    csv_write_file(NomeArquivo, CategoriaRows).
 
 
 % ===================================================================================================================
@@ -706,4 +758,4 @@ media_compras_por_cliente(Media) :-
 
 % Função para obter o histórico de compras de um cliente
 historico_compras(Cliente, Historico) :-
-    findall(Produto, carro(Cliente, Produto, _), Historico).
+    findall(Produto, carrinho(Cliente, Produto, _), Historico).
