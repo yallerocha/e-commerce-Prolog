@@ -123,8 +123,13 @@ processar_opcao_cliente(05) :-
     mostrarCarro(CPF),
     clienteController.
 
-processar_opcao_cliente(06) :-teboo
+processar_opcao_cliente(06) :-
     % Lógica para finalizar compra
+    writeln('Digite seu CPF'),
+    read(CPF),
+    writeln('Digite a data da compra (DD-MM-AAAA)'),
+    read(DataCompra),
+    finalizar_compra(CPF, DataCompra),
     clienteController.
 
 processar_opcao_cliente(07) :-
@@ -445,6 +450,9 @@ adicionar_carro(CPF, Codigo, Quantidade_Carrinho):-
 remover_carro(CPF, Codigo):-
     retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
 
+remover_carro(CPF):-
+    retract(carro(CPF, _, _)).
+
 tem_carrinho(CPF):-
     carro(CPF, _, _).
 
@@ -459,6 +467,7 @@ mostrarCarro(CPF):-
 
 imprimir_produtos_carro(Codigo, Quantidade_Carrinho) :-
     produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    format('Seu Carrinho de Compras~n'),
     format('========================================~n'),
     format('Nome:        | ~w~n', [Nome]),
     format('----------------------------------------~n'),
@@ -485,7 +494,35 @@ imprimir_produtos_carro(Codigo, Quantidade_Carrinho) :-
 % historico
 %--------------------------------------------------------------------------------------------------------------------------------------------
 
+:- dynamic historico/2.
+    
+finalizar_compra(CPF, DataCompra):-
+   assertz(historico(tem_carrinho(CPF), DataCompra)),
+   imprimir_historico(CPF, DataCompra). 
 
+imprimir_historico(CPF, DataCompra) :-
+    carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    format('Seu Comprovante de Compra~n'),
+    format('========================================~n'),
+    format('Nome:        | ~w~n', [Nome]),
+    format('----------------------------------------~n'),
+    format('Código:      | ~w~n', [Codigo]),
+    format('----------------------------------------~n'),
+    format('Categoria:   | ~w~n', [Categoria]),
+    format('----------------------------------------~n'),
+    format('Preço: | R$~w~n', [PrecoVenda]),
+    format('----------------------------------------~n'),
+    format('Data:  | ~w~n', [DataCompra]),
+    format('----------------------------------------~n'),
+    format('Fabricação:  | ~w~n', [Fabricacao]),
+    format('----------------------------------------~n'),
+    format('Validade:    | ~w~n', [Validade]),
+    format('----------------------------------------~n'),
+    format('Quantidade no Comprada:    | ~w~n', [Quantidade_Carrinho]),
+    format('----------------------------------------~n'),
+    remover_carro(CPF, Codigo),
+    fail.
 
 % ===================================================================================================================
 % Persistência de Dados
