@@ -98,17 +98,34 @@ processar_opcao_cliente(02) :-
 
 processar_opcao_cliente(03) :-
     % Lógica para adicionar ao carrinho
+    writeln('Digite seu CPF'),
+    read(CPF),
+    writeln('Digite o codigo do produto'),
+    read(Codigo),
+    writeln('Digite a quantidade'),
+    read(Quantidade_Carrinho),
+    adicionar_carro(CPF, Codigo, Quantidade_Carrinho),
     clienteController.
 
 processar_opcao_cliente(04) :-
-    % Lógica para remover do carrinho
+    % Lógica para remover carrinho
+    writeln('Digite o cpf'),
+    read(CPF),
+    writeln('Digite o codigo do produto'),
+    read(Codigo),
+    writeln('Digite a quantidade a ser retirada'),
+    read(QuantidadeCarrinhoRetirada),
+    atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada),
     clienteController.
 
 processar_opcao_cliente(05) :-
     % Lógica para visualizar carrinho
+    writeln('Digite seu CPF'),
+    read(CPF),
+    mostrarCarro(CPF),
     clienteController.
 
-processar_opcao_cliente(06) :-
+processar_opcao_cliente(06) :-teboo
     % Lógica para finalizar compra
     clienteController.
 
@@ -417,6 +434,67 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
     read(NomeUsuario),
     writeln('Digite a senha do cliente: '),
     read(Senha).
+
+%--------------------------------------------------------------------------------------------------------------------------------------------
+% carrinho
+%--------------------------------------------------------------------------------------------------------------------------------------------
+
+:- dynamic carro/3.
+
+adicionar_carro(CPF, Codigo, Quantidade_Carrinho):-
+    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
+
+atualizar_carro(CPF, Codigo, QuantidadeCarrinhoRetirada):-
+    quantidade_carrinho(CPF, Retorno),
+    Quantidade_final is Retorno - QuantidadeCarrinhoRetirada,
+    retract(carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho)),
+    assertz(carro(CPF, verificar_produto(Codigo), Quantidade_final)).
+
+remover_produto_carro(nomeProduto)
+    retract(carro(nomeProduto, _)).
+
+tem_carrinho(CPF):-
+    carro(CPF, _, _).
+
+quantidade_carrinho(CPF, Retorno):-
+    carro(CPF, _, Quantidade_Carrinho),
+    Retorno = Quantidade_Carrinho.
+
+mostrarCarro(CPF):-
+    carro(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    imprimir_produtos_carro(Codigo, Quantidade_Carrinho).
+
+
+imprimir_produtos_carro(Codigo, Quantidade_Carrinho) :-
+    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    format('========================================~n'),
+    format('Nome:        | ~w~n', [Nome]),
+    format('----------------------------------------~n'),
+    format('Código:      | ~w~n', [Codigo]),
+    format('----------------------------------------~n'),
+    format('Disponível:  | ~w~n', [Disponivel]),
+    format('----------------------------------------~n'),
+    format('Categoria:   | ~w~n', [Categoria]),
+    format('----------------------------------------~n'),
+    format('Preço Compra:| R$~w~n', [PrecoCompra]),
+    format('----------------------------------------~n'),
+    format('Preço Venda: | R$~w~n', [PrecoVenda]),
+    format('----------------------------------------~n'),
+    format('Quantidade:  | ~w~n', [Quantidade]),
+    format('----------------------------------------~n'),
+    format('Fabricação:  | ~w~n', [Fabricacao]),
+    format('----------------------------------------~n'),
+    format('Validade:    | ~w~n', [Validade]),
+    format('----------------------------------------~n'),
+    format('Quantidade no Carrinho:    | ~w~n', [Quantidade_Carrinho]),
+    format('========================================~n'),
+    fail.
+    
+
+%--------------------------------------------------------------------------------------------------------------------------------------------
+% historico
+%--------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 % ===================================================================================================================
