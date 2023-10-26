@@ -75,7 +75,7 @@ clienteCadastroController:-
     read(NomeCadastroCliente),
 	writeln('Sexo (ex: Masculino): '),
     read(SexoCadastroCliente),
-	write('Data de aniversário (ex: 29-01-2003): '),
+	writeln('Data de nascimento (ex: 29-01-2003): '),
     read(user, Date),
 	writeln('CPF (ex: 08515939410): '),
     read(user, CPFcadastroCliente),
@@ -83,9 +83,9 @@ clienteCadastroController:-
     read(user, EmailCadastroCliente),
 	writeln('telefone (ex: 83999999999): '),
     read(TelefoneCadastroCliente),
-	writeln('Login (ex: Login): '),
+	writeln('Nome de usuario: '),
     read(LoginCadastroCliente),
-	writeln('senha (ex: Senha): '),
+	writeln('Sua senha: '),
     read(SenhaCadastroCliente),
 	criar_cliente(NomeCadastroCliente, SexoCadastroCliente, Date, CPFcadastroCliente,EmailCadastroCliente,TelefoneCadastroCliente,LoginCadastroCliente,SenhaCadastroCliente).
 
@@ -238,7 +238,7 @@ clienteAtualizarCadastroController:-
 			clienteController
         ;
         Opcao = 03 ->
-            writeln('Data de aniversário (ex: 29-01-2003): '),
+            writeln('Data de nascimento (ex: 29-01-2003): '),
     		read(DataNascimentoUpdate),
 			atualizar_cliente(NomeCompleto, Sexo, DataNascimentoUpdate, CPF, Email, Telefone, NomeUsuario, Senha),
 			clienteController
@@ -367,6 +367,28 @@ admController_processar_opcao(10) :-
     ),
     admController.
 
+admController_processar_opcao(11) :-
+    writeln('Digite a categoria a ser adicionada: '),
+    read(Categoria),
+    (
+        categoria(Categoria) ->
+        writeln('Categoria já existe na base de dados.')
+    ;
+        criar_categoria(Categoria),
+        writeln('Categoria adicionada com sucesso.')
+    ),
+    admController.
+
+admController_processar_opcao(12) :-
+    writeln('Digite a categoria a ser removida: '),
+    read(Categoria),
+    (categoria(Categoria) ->
+        deletar_categoria(Categoria),
+        writeln('Categoria removida com sucesso.')
+    ;   writeln('Categoria não encontrada.')
+    ),
+    admController.
+
 admController_processar_opcao(13) :-
     repeat,
     writeln('Escolha o tipo de dashboard:'),
@@ -432,28 +454,6 @@ exibir_dashboard(_) :-
     writeln('Opção de dashboard inválida. Tente novamente.'),
     nl,
     admController_processar_opcao(13).
-
-admController_processar_opcao(11) :-
-    writeln('Digite a categoria a ser adicionada: '),
-    read(Categoria),
-    (
-        categoria(Categoria) ->
-        writeln('Categoria já existe na base de dados.')
-    ;
-        criar_categoria(Categoria),
-        writeln('Categoria adicionada com sucesso.')
-    ),
-    admController.
-
-admController_processar_opcao(12) :-
-    writeln('Digite a categoria a ser removida: '),
-    read(Categoria),
-    (categoria(Categoria) ->
-        deletar_categoria(Categoria),
-        writeln('Categoria removida com sucesso.')
-    ;   writeln('Categoria não encontrada.')
-    ),
-    admController.
 
 admController_processar_opcao(14) :-
     writeln('Saindo do modo administrador.'),
