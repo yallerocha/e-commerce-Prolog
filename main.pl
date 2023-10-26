@@ -475,15 +475,11 @@ verificar_produto(Codigo) :-
 verificar_cliente(CPF) :-
     cliente(_, _, _, CPF, _, _, _, _).
 
-% Predicado para ler um produto
+% Predica para ler um produto
 ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) :-
     writeln('Digite o nome do produto: '),
     read(Nome),
-    writeln('Digite a categoria do produto: '),
-    read(Categoria),
-    (categoria(Categoria) 
-    ; writeln('Categoria inválida. Tente novamente!'),
-    halt)
+    verificar_categoria(Categoria),
     writeln('Digite o preço de compra do produto: '),
     read(PrecoCompra),
     writeln('Digite o preço de venda do produto: '),
@@ -496,6 +492,15 @@ ler_produto(Nome, Disponivel, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fa
     read(Validade),
     writeln('Digite a disponibilidade do produto (true/false): '),
     read(Disponivel).
+
+verificar_categoria(Categoria) :-
+    writeln('Digite a categoria do produto: '),
+    read(Categoria),
+    (categoria(Categoria)
+    -> true
+    ; writeln('Categoria inválida. Tente novamente!'),
+      admController
+    ).
 
 % Predicado para ler um cliente
 ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Senha) :-
