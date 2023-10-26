@@ -253,8 +253,70 @@ admController_processar_opcao(09) :-
     admController.
 
 admController_processar_opcao(10) :-
-    % Lógica para visualizar dashboard
-    admController.
+    repeat,
+    writeln('Escolha o tipo de dashboard:'),
+    writeln('  (1) Quantidade total de produtos em estoque'),
+    writeln('  (2) Produtos com estoque baixo'),
+    writeln('  (3) Receita total gerada por todos os produtos'),
+    writeln('  (4) Receita total por categoria'),
+    writeln('  (5) Produtos mais populares'),
+    writeln('  (6) Clientes mais ativos'),
+    writeln('  (7) Média de compras por cliente'),
+    writeln('  (0) Voltar ao Menu de Administrador'),
+    read(OpcaoDashboard),
+    (OpcaoDashboard =:= 0 -> !, admController ; exibir_dashboard(OpcaoDashboard), !),
+    fail.
+
+% Funções para exibir os dashboards correspondentes
+
+exibir_dashboard(1) :-
+    quantidade_total_estoque(TotalEstoque),
+    format('Quantidade total de produtos em estoque: ~w~n', [TotalEstoque]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(2) :-
+    produtos_com_estoque_baixo(ProdutosBaixo),
+    format('Produtos com estoque baixo: ~w~n', [ProdutosBaixo]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(3) :-
+    receita_total_por_produto(ReceitaTotal),
+    format('Receita total gerada por todos os produtos: ~w~n', [ReceitaTotal]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(4) :-
+    writeln('Digite a categoria desejada: '),
+    read(Categoria),
+    receita_total_por_categoria(Categoria, ReceitaTotal),
+    format('Receita total gerada pela categoria ~w: ~w~n', [Categoria, ReceitaTotal]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(5) :-
+    produtos_mais_populares(ProdutosPopulares),
+    format('Produtos mais populares: ~w~n', [ProdutosPopulares]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(6) :-
+    clientes_mais_ativos(ClientesAtivos),
+    format('Clientes mais ativos: ~w~n', [ClientesAtivos]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(7) :-
+    media_compras_por_cliente(MediaCompras),
+    format('Média de compras por cliente: ~w~n', [MediaCompras]),
+    nl,
+    admController_processar_opcao(10).
+
+exibir_dashboard(_) :-
+    writeln('Opção de dashboard inválida. Tente novamente.'),
+    nl,
+    admController_processar_opcao(10).
 
 admController_processar_opcao(11) :-
     writeln('Saindo do modo administrador.'),
@@ -589,3 +651,59 @@ ler_codigo_csv(NomeArquivo) :-
 gravar_codigo_csv(NomeArquivo) :-
     contador_codigo(Valor),
     csv_write_file(NomeArquivo, [row(Valor)]).
+
+
+% ===================================================================================================================
+% Dashboard
+% ===================================================================================================================
+
+
+% Função para calcular a quantidade total de produtos em estoque
+quantidade_total_estoque(Total) :-
+    findall(Quantidade, produto(_, _, _, _, _, _, Quantidade, _, _), Quantidades),
+    sum_list(Quantidades, Total).
+
+% Função para listar produtos com estoque baixo (estoque < 10)
+produtos_com_estoque_baixo(Produtos) :-
+    findall(Nome, (produto(_, _, Nome, _, _, _, Quantidade, _, _), Quantidade < 10), Produtos).
+
+% Função para calcular a receita total gerada por todos os produtos
+receita_total_por_produto(ReceitaTotal) :-
+    findall(Receita, (produto(_, _, _, _, _, PrecoVenda, Quantidade, _, _), Receita is PrecoVenda * Quantidade), Receitas),
+    sum_list(Receitas, ReceitaTotal).
+
+% Função para calcular a receita total gerada por categoria
+receita_total_por_categoria(Categoria, ReceitaTotal) :-
+    findall(Receita, (produto(_, _, _, Categoria, _, PrecoVenda, Quantidade, _, _), Receita is PrecoVenda * Quantidade), Receitas),
+    sum_list(Receitas, ReceitaTotal).
+
+% Função para encontrar os produtos mais populares (com base na quantidade)
+produtos_mais_populares(Produtos) :-
+    findall([Quantidade, Nome], (produto(_, _, Nome, _, _, _, Quantidade, _, _)), ListaProdutos),
+    sort(2, @>=, ListaProdutos, ListaOrdenada),
+    take(5, ListaOrdenada, Produtos).
+
+% Helper: Função para pegar os N primeiros itens de uma lista
+take(0, _, []).
+take(_, [], []).
+take(N, [H|T], [H|Result]) :-
+    N > 0,
+    N1 is N-1,
+    take(N1, T, Result).
+
+% Função para calcular os clientes mais ativos
+clientes_mais_ativos(Clientes) :-
+    findall([Len, Nome], (cliente(Nome, _, _, _, _, _, _, _), historico_compras(Nome, Historico), length(Historico, Len)), ListaClientes),
+    sort(2, @>=, ListaClientes, ListaOrdenada),
+    take(5, ListaOrdenada, Clientes).
+
+% Função para calcular a media de compras por cliente
+media_compras_por_cliente(Media) :-
+    findall(Compras, (cliente(_, _, _, _, _, _, _, _), historico_compras(_, Historico), length(Historico, Compras)), ListaCompras),
+    length(ListaCompras, TotalClientes),
+    sum_list(ListaCompras, TotalCompras),
+    (TotalClientes = 0 -> Media is 0; Media is TotalCompras / TotalClientes).
+
+% Função para obter o histórico de compras de um cliente
+historico_compras(Cliente, Historico) :-
+    findall(Produto, carro(Cliente, Produto, _), Historico).
