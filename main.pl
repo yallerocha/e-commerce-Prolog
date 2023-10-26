@@ -167,9 +167,11 @@ admController :-
     writeln('  (07) Ler Cliente por CPF'), 
     writeln('  (08) Atualizar Cliente Completo'),
     writeln('  (09) Deletar Cliente por CPF'),
-    writeln('  (10) Visualizar Dashboard'), 
-    writeln('  (11) Sair do Modo Administrador'), 
-    writeln('  (12) Sair do Sistema'), 
+    writeln('  (10) Visualizar Dashboard'),
+    writeln('  (11) Adicionar Categoria'),
+    writeln('  (12) Remover Categoria e Produtos'),
+    writeln('  (13) Sair do Modo Administrador'), 
+    writeln('  (14) Sair do Sistema'), 
     writeln('Digite a opção desejada: '),
     read(Opcao),
     admController_processar_opcao(Opcao).
@@ -319,30 +321,62 @@ exibir_dashboard(_) :-
     admController_processar_opcao(10).
 
 admController_processar_opcao(11) :-
+    writeln('Digite a categoria a ser adicionada: '),
+    read(Categoria),
+    (
+        categoria(Categoria) ->
+        writeln('Categoria já existe na base de dados.')
+    ;
+        criar_categoria(Categoria),
+        writeln('Categoria adicionada com sucesso.')
+    ),
+    admController.
+
+admController_processar_opcao(12) :-
+    writeln('Digite a categoria a ser removida: '),
+    read(Categoria),
+    (categoria(Categoria) ->
+        deletar_categoria(Categoria),
+        writeln('Categoria removida com sucesso.')
+    ;   writeln('Categoria não encontrada.')
+    ),
+    admController.
+
+admController_processar_opcao(13) :-
     writeln('Saindo do modo administrador.'),
     initialController.
 
-admController_processar_opcao(12) :-
+admController_processar_opcao(14) :-
     fechar_sistema.
 
 admController_processar_opcao(_) :-
     writeln('Opção inválida. Tente novamente.'),
     admController.
 
+% ===================================================================================================================
+% Categoria
+% ===================================================================================================================
+
+:- dynamic categoria/1.
+
+% Predicado para criar uma categoria
+criar_categoria(Categoria) :-
+    assertz(categoria(Categoria)).
+
+% Predicado para deletar uma categoria (isso também apaga os produtos da categoria)
+deletar_categoria(Categoria) :-
+    retract(categoria(Categoria)),
+    retractall(produto(_,_,_,Categoria,_,_,_,_,_)).
 
 % ===================================================================================================================
 % Produto
 % ===================================================================================================================
 
 :- dynamic produto/9.
-:- dynamic categoria/1.
 
 % Predicado para criar um produto
 criar_produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) :-
     assertz(produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade)).
-
-criar_categoria(Categoria) :-
-    assertz(categoria(Categoria)).
 
 % Predicado para atualizar um produto
 atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoCompra, NovoPrecoVenda, NovaQuantidade, NovaFabricacao, NovaValidade) :-
@@ -352,11 +386,6 @@ atualizar_produto(Codigo, NovoDisponivel, NovoNome, NovaCategoria, NovoPrecoComp
 % Predicado para deletar um produto por código
 deletar_produto(Codigo) :-
     retract(produto(Codigo, _, _, _, _, _, _, _, _)).
-
-% Predicado para deletar uma categoria (isso também apaga os produtos dela)
-deletar_categoria(Categoria) :-
-    retrac(categoria(Categoria)),
-    retrac(produto(_,_,_,Categoria,_,_,_,_,_)).
 
 % Predicado para imprimir um produto
 imprimir_produto(Codigo) :-
@@ -383,27 +412,9 @@ imprimir_produto(Codigo) :-
 
 % Predicado para imprimir produtos de uma determinada categoria
 imprimir_produtos_por_categoria(Categoria) :-
-    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
-    format('========================================~n'),
-    format('Nome:        | ~w~n', [Nome]),
-    format('----------------------------------------~n'),
-    format('Código:      | ~w~n', [Codigo]),
-    format('----------------------------------------~n'),
-    format('Disponível:  | ~w~n', [Disponivel]),
-    format('----------------------------------------~n'),
-    format('Categoria:   | ~w~n', [Categoria]),
-    format('----------------------------------------~n'),
-    format('Preço Compra:| R$~w~n', [PrecoCompra]),
-    format('----------------------------------------~n'),
-    format('Preço Venda: | R$~w~n', [PrecoVenda]),
-    format('----------------------------------------~n'),
-    format('Quantidade:  | ~w~n', [Quantidade]),
-    format('----------------------------------------~n'),
-    format('Fabricação:  | ~w~n', [Fabricacao]),
-    format('----------------------------------------~n'),
-    format('Validade:    | ~w~n', [Validade]),
-    format('========================================~n'),
-    fail.
+    findall((Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), 
+            produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), Produtos),
+    imprimir_lista_produtos(Produtos).
 
 
 % ===================================================================================================================
@@ -456,6 +467,7 @@ iniciar_sistema :-
     ler_clientes_csv('Clientes.csv'),
     ler_codigo_csv('NextCodigo.csv'),
     ler_carrinhos_csv('Carrinhos.csv'),
+    ler_categorias_csv('Categorias.csv'),
     initialController.
 
 % Predicado para fechar o sistema
@@ -464,7 +476,8 @@ fechar_sistema :-
     gravar_produtos_csv('Produtos.csv'),
     gravar_clientes_csv('Clientes.csv'),
     gravar_codigo_csv('NextCodigo.csv'),
-    gravar_carrinho_csv('Carrinhos.csv'),
+    gravar_carrinhos_csv('Carrinhos.csv'),
+    gravar_categorias_csv('Categorias.csv'),
     halt.
 
 % Predicado para verificar se um produto existe
@@ -518,6 +531,30 @@ ler_cliente(NomeCompleto, Sexo, DataNascimento, Email, Telefone, NomeUsuario, Se
     read(NomeUsuario),
     writeln('Digite a senha do cliente: '),
     read(Senha).
+
+% Predicado para imprimir uma lista de produtos
+imprimir_lista_produtos([]).
+imprimir_lista_produtos([(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade) | Resto]) :-
+    format('========================================~n'),
+    format('Nome:        | ~w~n', [Nome]),
+    format('----------------------------------------~n'),
+    format('Código:      | ~w~n', [Codigo]),
+    format('----------------------------------------~n'),
+    format('Disponível:  | ~w~n', [Disponivel]),
+    format('----------------------------------------~n'),
+    format('Categoria:   | ~w~n', [Categoria]),
+    format('----------------------------------------~n'),
+    format('Preço Compra:| R$~w~n', [PrecoCompra]),
+    format('----------------------------------------~n'),
+    format('Preço Venda: | R$~w~n', [PrecoVenda]),
+    format('----------------------------------------~n'),
+    format('Quantidade:  | ~w~n', [Quantidade]),
+    format('----------------------------------------~n'),
+    format('Fabricação:  | ~w~n', [Fabricacao]),
+    format('----------------------------------------~n'),
+    format('Validade:    | ~w~n', [Validade]),
+    format('========================================~n'),
+    imprimir_lista_produtos(Resto).
 
 %--------------------------------------------------------------------------------------------------------------------------------------------
 % Carrinho
