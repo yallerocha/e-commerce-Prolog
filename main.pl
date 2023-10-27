@@ -212,7 +212,7 @@ processar_opcao_cliente(10) :-
     ).
 
 processar_opcao_cliente(11) :-
-    retract(logado(CPF)),
+    retract(logado(_)),
     writeln('Saindo do modo cliente.'),
     initialController.
 
