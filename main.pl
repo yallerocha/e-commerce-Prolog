@@ -41,7 +41,7 @@ initialController :-
 
 initialController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, true),
     initialController.
 
 initialController_processar_opcao(02) :-
@@ -119,13 +119,13 @@ clienteController :-
 
 processar_opcao_cliente(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, true),
     clienteController.
 
 processar_opcao_cliente(02) :-
     writeln('Digite a categoria desejada: '),
     read(Categoria),
-    imprimir_produtos_por_categoria(Categoria),
+    imprimir_produtos_por_categoria_e_disponibilidade(Categoria, true),
     clienteController.
 
 processar_opcao_cliente(03) :-
@@ -289,7 +289,7 @@ admController :-
 
 admController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, _),
     admController.
 
 admController_processar_opcao(02) :-
@@ -322,7 +322,7 @@ admController_processar_opcao(04) :-
 admController_processar_opcao(05) :-
     writeln('Digite a categoria desejada: '),
     read(Categoria),
-    imprimir_produtos_por_categoria(Categoria),
+    imprimir_produtos_por_categoria_e_disponibilidade(Categoria, _),
     admController.
 
 admController_processar_opcao(06) :-
@@ -532,7 +532,7 @@ imprimir_produto(Codigo) :-
     format('========================================~n').
 
 % Predicado para imprimir produtos de uma determinada categoria
-imprimir_produtos_por_categoria(Categoria) :-
+imprimir_produtos_por_categoria_e_disponibilidade(Categoria, Disponivel) :-
     findall((Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
             produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), Produtos),
     imprimir_lista_produtos(Produtos).
