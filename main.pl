@@ -606,6 +606,7 @@ iniciar_sistema :-
     ler_carrinhos_csv('Carrinhos.csv'),
     ler_categorias_csv('Categorias.csv'),
     ler_avaliacoes_csv('Avaliacoes.csv'),
+    ler_historicos_csv('Historicos.csv'),
     initialController.
 
 % Predicado para fechar o sistema
@@ -617,6 +618,7 @@ fechar_sistema :-
     gravar_carrinhos_csv('Carrinhos.csv'),
     gravar_categorias_csv('Categorias.csv'),
     gravar_avaliacoes_csv('Avaliacoes.csv'),
+    gravar_historicos_csv('Historicos.csv'),
     halt.
 
 % Predicado para verificar se um produto existe
