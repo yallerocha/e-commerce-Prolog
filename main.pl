@@ -136,6 +136,7 @@ processar_opcao_cliente(03) :-
     read(Codigo),
     writeln('Digite a quantidade'),
     read(Quantidade_Carrinho),
+    verificar_produto(Codigo),
     adicionar_carrinho(CPF, Codigo, Quantidade_Carrinho),
     clienteController.
 
@@ -145,6 +146,7 @@ processar_opcao_cliente(04) :-
     read(CPF),
     writeln('Digite o codigo do produto'),
     read(Codigo),
+    verificar_produto(Codigo),
     remover_carrinho(CPF, Codigo),
     clienteController.
 
@@ -152,6 +154,7 @@ processar_opcao_cliente(05) :-
     % Lógica para visualizar carrinho
     writeln('Digite seu CPF'),
     read(CPF),
+    tem_carrinho(CPF),
     mostrarcarrinho(CPF),
     clienteController.
 
@@ -715,13 +718,10 @@ imprimir_lista_produtos([(Codigo, Disponivel, Nome, Categoria, PrecoCompra, Prec
 :- dynamic carrinho/3.
 
 adicionar_carrinho(CPF, Codigo, Quantidade_Carrinho):-
-    assertz(carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
+    assertz(carrinho(CPF, Codigo, Quantidade_Carrinho)).
 
 remover_carrinho(CPF, Codigo):-
-    retract(carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho)).
-
-remover_carrinho(CPF):-
-    retract(carrinho(CPF, _, _)).
+    retract(carrinho(CPF, Codigo, _)).
 
 tem_carrinho(CPF):-
     carrinho(CPF, _, _).
@@ -731,12 +731,12 @@ quantidade_carrinho(CPF, Retorno):-
     Retorno = Quantidade_Carrinho.
 
 mostrarcarrinho(CPF):-
-    carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
+    carrinho(CPF, Codigo, Quantidade_Carrinho),
     imprimir_produtos_carrinho(Codigo, Quantidade_Carrinho).
 
 
 imprimir_produtos_carrinho(Codigo, Quantidade_Carrinho) :-
-    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    produto(Codigo, Disponivel, Nome, Categoria, _, PrecoVenda, Quantidade, Fabricacao, Validade),
     format('Seu Carrinho de Compras~n'),
     format('========================================~n'),
     format('Nome:        | ~w~n', [Nome]),
@@ -771,8 +771,8 @@ finalizar_compra(CPF, DataCompra):-
    imprimir_historico(CPF, DataCompra).
 
 imprimir_historico(CPF, DataCompra) :-
-    carrinho(CPF, verificar_produto(Codigo), Quantidade_Carrinho),
-    produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
+    carrinho(CPF, Codigo, Quantidade_Carrinho),
+    produto(Codigo, _, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
     format('Seu Comprovante de Compra~n'),
     format('========================================~n'),
     format('Nome:        | ~w~n', [Nome]),
