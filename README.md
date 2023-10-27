@@ -48,7 +48,7 @@ Certifique-se de ter os seguintes pré-requisitos instalados em sua máquina:
 
 Instalação:
 ```bash
-git clone https://github.com/GledsonLScruz/plp-projeto.git
+git clone https://github.com/yallerocha/e-commerce-Prolog.git
 ```
 
 Acesse o diretório do projeto:
