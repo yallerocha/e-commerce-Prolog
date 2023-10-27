@@ -853,6 +853,13 @@ ler_avaliacoes_csv(NomeArquivoAvaliacoes) :-
     ;   writeln('Erro ao ler o arquivo de avaliacoes.')
     ).
 
+% Predicado para ler os historicos de compras do arquivo CSV
+ler_historicos_csv(NomeArquivoHistoricos) :-
+    (   csv_read_file(NomeArquivoHistoricos, HistoricoRows, [])
+    ->  processar_linhas(HistoricoRows, historico)
+    ;   writeln('Erro ao ler o arquivo de historicos.')
+    ).
+
 % Predicado para gravar produtos em um arquivo CSV
 gravar_produtos_csv(NomeArquivo) :-
     findall(row(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
@@ -888,6 +895,12 @@ gravar_avaliacoes_csv(NomeArquivo) :-
         avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao), AvaliacaoRows),
     csv_write_file(NomeArquivo, AvaliacaoRows).
 
+% Predicado para salvar os historicos de compra em um arquivo CSV
+gravar_historicos_csv(NomeArquivo) :-
+    findall(row(CPF, DataCompra),
+        historico(CPF, DataCompra), HistoricoRows),
+    csv_write_file(NomeArquivo, HistoricoRows).
+
 % Predicado para processar as linhas lidas do CSV
 processar_linhas([], _).
 processar_linhas([Row|Rest], Tipo) :-
@@ -921,6 +934,11 @@ processar_linha(Row, categoria) :-
 processar_linha(Row, avaliacao) :-
     Row = row(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao),
     assertz(avaliacao(CPF,CodigoProduto,TextAvaliacao,NotaAvaliacao)).
+
+% Predicado para processar linha de historico e criar predicados
+processar_linha(Row, historico) :-
+    Row = row(CPF, DataCompra),
+    assertz(historico(CPF, DataCompra)).
 
 
 % ===================================================================================================================
