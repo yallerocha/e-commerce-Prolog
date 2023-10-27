@@ -21,6 +21,51 @@ obter_e_incrementar_codigo(ProximoCodigo) :-
     NovoCodigo is CodigoAtual + 1,
     asserta(contador_codigo(NovoCodigo)).
 
+% ===================================================================================================================
+% Login e Cadastro
+% ===================================================================================================================
+
+clienteLoginController:-
+	writeln('Login: '),
+    read(LoginCliente),
+	writeln('Senha: '),
+    read(SenhaCliente),
+	cliente_login(LoginCliente,SenhaCliente).
+
+cliente_login(LoginCliente,SenhaCliente):-
+	cliente(_,_,_,CPF,_,_,LoginCliente,SenhaCliente),
+    assertz(logado(CPF)),
+	clienteController.
+
+clienteCadastroController:-
+	writeln('Nome (ex: Nome): '),
+    read(NomeCadastroCliente),
+	writeln('Sexo (ex: Masculino): '),
+    read(SexoCadastroCliente),
+	writeln('Data de nascimento (ex: 29-01-2003): '),
+    read(user, Date),
+	writeln('CPF (ex: 08515939410): '),
+    read(user, CPFcadastroCliente),
+	writeln('Email (ex: nome@gmail.com.br): '),
+    read(user, EmailCadastroCliente),
+	writeln('telefone (ex: 83999999999): '),
+    read(TelefoneCadastroCliente),
+	writeln('Nome de usuario: '),
+    read(LoginCadastroCliente),
+	writeln('Sua senha: '),
+    read(SenhaCadastroCliente),
+	criar_cliente(NomeCadastroCliente, SexoCadastroCliente, Date, CPFcadastroCliente,EmailCadastroCliente,TelefoneCadastroCliente,LoginCadastroCliente,SenhaCadastroCliente).
+
+admLoginController:-
+	writeln('Login: '),
+	read(LoginAdm),
+	writeln('Senha: '),
+	read(SenhaAdm),
+	adm_Login(LoginAdm,SenhaAdm).
+
+adm_Login('admin', 'admin'):-
+	admController.
+
 
 % ===================================================================================================================
 % Controllers
@@ -41,7 +86,7 @@ initialController :-
 
 initialController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, true),
     initialController.
 
 initialController_processar_opcao(02) :-
@@ -62,39 +107,6 @@ initialController_processar_opcao(05) :-
 initialController_processar_opcao(_) :-
     writeln('Opção inválida. Tente novamente.'),
     initialController.
-
-clienteLoginController:-
-	writeln('Login: '),
-    read(LoginCliente),
-	writeln('Senha: '),
-    read(SenhaCliente),
-	cliente_login(LoginCliente,SenhaCliente).
-
-clienteCadastroController:-
-	writeln('Nome (ex: Nome): '),
-    read(NomeCadastroCliente),
-	writeln('Sexo (ex: Masculino): '),
-    read(SexoCadastroCliente),
-	writeln('Data de nascimento (ex: 29-01-2003): '),
-    read(user, Date),
-	writeln('CPF (ex: 08515939410): '),
-    read(user, CPFcadastroCliente),
-	writeln('Email (ex: nome-gmail.com.br): '),
-    read(user, EmailCadastroCliente),
-	writeln('telefone (ex: 83999999999): '),
-    read(TelefoneCadastroCliente),
-	writeln('Nome de usuario: '),
-    read(LoginCadastroCliente),
-	writeln('Sua senha: '),
-    read(SenhaCadastroCliente),
-	criar_cliente(NomeCadastroCliente, SexoCadastroCliente, Date, CPFcadastroCliente,EmailCadastroCliente,TelefoneCadastroCliente,LoginCadastroCliente,SenhaCadastroCliente).
-
-admLoginController:-
-	writeln('Login: '),
-	read(LoginAdm),
-	writeln('Senha: '),
-	read(SenhaAdm),
-	adm_Login(LoginAdm,SenhaAdm).
 
 % Predicado para buscar um produto por nome
 clienteController :-
@@ -119,19 +131,18 @@ clienteController :-
 
 processar_opcao_cliente(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, true),
     clienteController.
 
 processar_opcao_cliente(02) :-
     writeln('Digite a categoria desejada: '),
     read(Categoria),
-    imprimir_produtos_por_categoria(Categoria),
+    imprimir_produtos_por_categoria_e_disponibilidade(Categoria,true),
     clienteController.
 
 processar_opcao_cliente(03) :-
     % Lógica para adicionar ao carrinho
-    writeln('Digite seu CPF'),
-    read(CPF),
+    logado(CPF),
     writeln('Digite o codigo do produto'),
     read(Codigo),
     writeln('Digite a quantidade'),
@@ -141,8 +152,7 @@ processar_opcao_cliente(03) :-
 
 processar_opcao_cliente(04) :-
     % Lógica para remover do carrinho
-    writeln('Digite o cpf'),
-    read(CPF),
+    logado(CPF),
     writeln('Digite o codigo do produto'),
     read(Codigo),
     remover_carrinho(CPF, Codigo),
@@ -150,24 +160,21 @@ processar_opcao_cliente(04) :-
 
 processar_opcao_cliente(05) :-
     % Lógica para visualizar carrinho
-    writeln('Digite seu CPF'),
-    read(CPF),
+    logado(CPF),
     mostrarcarrinho(CPF),
     clienteController.
 
 processar_opcao_cliente(06) :-
     % Lógica para finalizar compra
-    writeln('Digite seu CPF'),
-    read(CPF),
+    logado(CPF),
     writeln('Digite a data da compra (DD-MM-AAAA)'),
     read(DataCompra),
     finalizar_compra(CPF, DataCompra),
     clienteController.
 
 processar_opcao_cliente(07) :-
-    % Lógica para finalizar compra
-    writeln('Digite seu CPF:'),
-    read(CPF),
+    % Lógica para avaliar um produto
+    logado(CPF),
     writeln('Digite o codigo do Produto a ser avaliado:'),
     read(CodigoProduto),
 	writeln('Digite a sua nota para este produto'),
@@ -191,11 +198,17 @@ processar_opcao_cliente(10) :-
     % Lógica para deletar conta
 	writeln('Digite seu CPF'),
     read(CPF),
-    deletar_cliente(CPF),
-	writeln('Cliente Apagado com sucesso'),
-    initialController.
+    logado(CPF) -> (
+        deletar_cliente(CPF),
+        writeln('Conta deletada com sucesso.'),
+        initialController
+    ) ; (
+        writeln('Este CPF não é seu.'),
+        clienteController
+    ).
 
 processar_opcao_cliente(11) :-
+    retract(logado(CPF)),
     writeln('Saindo do modo cliente.'),
     initialController.
 
@@ -209,12 +222,7 @@ processar_opcao_cliente(_) :-
     clienteController.
 
 clienteAtualizarCadastroController:-
-	writeln('Digite o CPF a ser atualizado: '),
-    read(CPF),
-	(verificar_cliente(CPF) ->
-        nl
-    ;   writeln('Cliente não encontrado.')
-    ),
+	logado(CPF),
 	cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha),
 
 	writeln('======================'),
@@ -244,13 +252,13 @@ clienteAtualizarCadastroController:-
 			clienteController
         ;
 		Opcao = 04 ->
-            writeln('Email (ex: nome-gmail.com.br): '),
+            writeln('Email (ex: nome@gmail.com.br): '),
     		read(EmailUpdate),
 			atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, EmailUpdate, Telefone, NomeUsuario, Senha),
 			clienteController
         ;
 		Opcao = 05 ->
-            writeln('senha (ex: Senha): '),
+            writeln('senha: '),
     		read(SenhaUpdate),
 			atualizar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, SenhaUpdate),
 			clienteController
@@ -285,7 +293,7 @@ admController :-
 
 admController_processar_opcao(01) :-
     writeln('Visualizando produtos...'),
-    imprimir_produtos_por_categoria(_),
+    imprimir_produtos_por_categoria_e_disponibilidade(_, _),
     admController.
 
 admController_processar_opcao(02) :-
@@ -318,7 +326,7 @@ admController_processar_opcao(04) :-
 admController_processar_opcao(05) :-
     writeln('Digite a categoria desejada: '),
     read(Categoria),
-    imprimir_produtos_por_categoria(Categoria),
+    imprimir_produtos_por_categoria_e_disponibilidade(Categoria,_),
     admController.
 
 admController_processar_opcao(06) :-
@@ -528,7 +536,7 @@ imprimir_produto(Codigo) :-
     format('========================================~n').
 
 % Predicado para imprimir produtos de uma determinada categoria
-imprimir_produtos_por_categoria(Categoria) :-
+imprimir_produtos_por_categoria_e_disponibilidade(Categoria, Disponivel) :-
     findall((Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade),
             produto(Codigo, Disponivel, Nome, Categoria, PrecoCompra, PrecoVenda, Quantidade, Fabricacao, Validade), Produtos),
     imprimir_lista_produtos(Produtos).
@@ -545,13 +553,6 @@ criar_cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsua
     assertz(cliente(NomeCompleto, Sexo, DataNascimento, CPF, Email, Telefone, NomeUsuario, Senha)),
 	writeln("Cliente Cadastrado com sucesso!"),
 	clienteController.
-
-cliente_login(LoginCliente,SenhaCliente):-
-	cliente(_,_,_,_,_,_,LoginCliente,SenhaCliente),
-	clienteController.
-
-adm_Login('admin', 'admin'):-
-	admController.
 
 % Predicado para deletar um cliente por CPF
 deletar_cliente(CPF) :-
